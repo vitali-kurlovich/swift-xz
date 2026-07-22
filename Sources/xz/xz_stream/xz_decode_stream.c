@@ -26,7 +26,7 @@ int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
     XzDecMtProps_Init(&props);
     
     // Set thread count (0 defaults to auto/system thread count)
-   // props.numThreads = 0;
+    props.numThreads = 0;
 
     // 3. Prepare status tracking variables
     CXzStatInfo stat;

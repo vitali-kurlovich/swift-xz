@@ -15,22 +15,21 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
-        
+
         .target(name: "CLzma",
-                        path: "Sources/xz",
-                       ),
-        
+                path: "Sources/xz"),
+
         .target(
             name: "XzCompression",
             dependencies: [
-                    .target(name: "CLzma")
-            ],
-            
+                .target(name: "CLzma"),
+            ]
+
         ),
         .testTarget(
             name: "XzCompressionTests",
-            dependencies: ["XzCompression"],
-            
+            dependencies: ["XzCompression"]
+
         ),
     ],
     swiftLanguageModes: [.v6]

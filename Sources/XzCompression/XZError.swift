@@ -25,4 +25,3 @@ public enum XZError: Int32, Error, Sendable {
 
     case unknownError = -1
 }
-

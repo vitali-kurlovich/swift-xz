@@ -64,6 +64,10 @@ int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
 }
 
 int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
+    return Encode_XZ_Stream_Level(inStream, outStream, 7);
+}
+
+int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, int level) {
     // 1. Create encoder instance using memory allocators from 7zAlloc
     CXzEncHandle enc = XzEnc_Create(&g_Alloc, &g_Alloc);
     
@@ -75,6 +79,13 @@ int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
     // 2. Initialize encoding properties
     CXzProps props;
     XzProps_Init(&props);
+    
+    /* 0 <= level <= 9 */
+    if ( 0 <= level && level <= 9) {
+        CLzmaEncProps *lzmaProps = &props.lzma2Props.lzmaProps;
+        lzmaProps->level = level;
+        LzmaEncProps_Normalize(lzmaProps);
+    }
     
     XzEnc_SetProps(enc, &props);
     
@@ -93,6 +104,6 @@ int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
         return res;
     }
 
-   // printf("Successfully decompressed %llu uncompressed bytes.\n", (unsigned long long)stat);
+
     return SZ_OK;
 }

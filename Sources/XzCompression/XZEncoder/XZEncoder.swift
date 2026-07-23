@@ -6,7 +6,13 @@ import CLzma
 import Foundation
 
 public struct XZEncoder: Sendable {
-    public init() {}
+    /// Compression level (0 <= level <= 9)
+    ///
+    public var level: Int
+
+    public init(level: Int = -1) {
+        self.level = level
+    }
 }
 
 public extension XZEncoder {
@@ -27,10 +33,10 @@ public extension XZEncoder {
             context: writeHandler.context
         )
 
-        let result = Encode_XZ_Stream(&readStream, &writeStream)
+        let res = Encode_XZ_Stream_Level(&readStream, &writeStream, .init(level))
 
-        guard result == SZ_OK else {
-            throw XZError(rawValue: Int32(result)) ?? .unknownError
+        guard res == SZ_OK else {
+            throw XZError(rawValue: Int32(res)) ?? .unknownError
         }
     }
 }

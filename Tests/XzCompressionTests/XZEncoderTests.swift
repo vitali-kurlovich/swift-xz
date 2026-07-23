@@ -47,7 +47,7 @@ struct XZEncoderTests {
 
         #expect(try decoder.decode(from: compessedURL) == TestData.expected)
     }
-    
+
     @Test("Compress Data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
@@ -68,7 +68,6 @@ struct XZEncoderTests {
 
         let result = try Data(contentsOf: fileURL)
 
-      
         let decoder = XZDecoder()
 
         #expect(try decoder.decode(from: result) == TestData.expected)

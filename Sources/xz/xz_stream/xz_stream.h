@@ -11,6 +11,8 @@ EXTERN_C_BEGIN
 
 int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream);
 
+int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream);
+
 EXTERN_C_END
 
 #endif

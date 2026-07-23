@@ -3,4 +3,4 @@
 //
 
 #include "../lzma2602/C/7z.h"
-#include "../xz_stream/xz_decode_stream.h"
+#include "../xz_stream/xz_stream.h"

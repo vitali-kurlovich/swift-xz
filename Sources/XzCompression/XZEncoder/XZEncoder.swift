@@ -18,9 +18,8 @@ public struct XZEncoder: Sendable {
 public extension XZEncoder {
     func encode(read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Bool = { inSize, outSize in
-                    print("encode progress  inSize:\(inSize) outSize: \(outSize)")
-                    return false
+                progress: @escaping (Int, Int) -> Bool = { _, _ in
+                    false
                 }) throws(XZError)
     {
         let readHandler = ReadHandler(read: read)

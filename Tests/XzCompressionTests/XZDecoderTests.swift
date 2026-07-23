@@ -8,14 +8,15 @@ enum IOError: Error {
 }
 
 struct XZDecoderTests {
-    @Test
+    @Test("XZDecoder decode data")
     func decode() throws {
         let decoder = XZDecoder()
 
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
     }
 
-    @Test func error() throws {
+    @Test("XZDecoder Error handling")
+    func error() throws {
         let decoder = XZDecoder()
 
         #expect(throws: XZError.inputEofError) {
@@ -37,7 +38,7 @@ struct XZDecoderTests {
         }
     }
 
-    @Test("Decompress to file")
+    @Test("XZDecoder Decompress to file")
     func fileDecode() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -66,7 +67,7 @@ struct XZDecoderTests {
         #expect(try decoder.decode(from: fileURL) == TestData.expected)
     }
 
-    @Test("Decompress Data to file")
+    @Test("XZDecoder Decompress Data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory

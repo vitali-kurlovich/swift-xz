@@ -7,7 +7,7 @@ import Testing
 import XzCompression
 
 struct XZEncoderTests {
-    @Test
+    @Test("XZEncoder encode data")
     func encode() throws {
         let encoder = XZEncoder()
 
@@ -21,7 +21,8 @@ struct XZEncoderTests {
         #expect(try decoder.decode(from: result) == data)
     }
 
-    @Test func error() throws {
+    @Test("XZEncoder Error handling")
+    func error() throws {
         let encoder = XZEncoder()
 
         #expect(throws: XZError.writeError) {
@@ -31,7 +32,7 @@ struct XZEncoderTests {
         }
     }
 
-    @Test("Encode to file")
+    @Test("XZEncoder Encode to file")
     func fileEncode() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -58,7 +59,7 @@ struct XZEncoderTests {
         #expect(try decoder.decode(from: compessedURL) == TestData.expected)
     }
 
-    @Test("Compress Data to file")
+    @Test("XZEncoder Compress Data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory

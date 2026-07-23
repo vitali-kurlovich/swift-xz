@@ -55,13 +55,7 @@ int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompress
     // 6. Cleanup decoder instance
     XzDecMt_Destroy(dec);
 
-    if (res != SZ_OK) {
-        fprintf(stderr, "Decoding failed with error code: %d\n", res);
-        return res;
-    }
-
-   // printf("Successfully decompressed %llu uncompressed bytes.\n", (unsigned long long)stat);
-    return SZ_OK;
+    return res;
 }
 
 int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
@@ -73,7 +67,6 @@ int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, ICo
     CXzEncHandle enc = XzEnc_Create(&g_Alloc, &g_Alloc);
     
     if (!enc) {
-        fprintf(stderr, "Failed to create XzDecMt instance.\n");
         return SZ_ERROR_MEM;
     }
     
@@ -101,11 +94,5 @@ int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, ICo
     // 6. Cleanup decoder instance
     XzEnc_Destroy(enc);
     
-    if (res != SZ_OK) {
-        fprintf(stderr, "Encoding failed with error code: %d\n", res);
-        return res;
-    }
-
-
-    return SZ_OK;
+    return res;
 }

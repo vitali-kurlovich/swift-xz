@@ -7,6 +7,7 @@ import CLzma
 import Foundation
 
 typealias WriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?, UnsafeRawPointer?, Int) -> Int
+typealias FinalizeWriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?) -> Void
 
 final class WriteHandler: @unchecked Sendable {
     private let writeFunc: (Data) throws -> Void
@@ -25,18 +26,36 @@ extension WriteHandler {
         UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
     }
 
+    var finalize: FinalizeWriteStream {
+        return { ptr in
+            guard let ptr else {
+                return
+            }
+
+            Unmanaged<WriteHandler>
+                .fromOpaque(ptr.pointee.context)
+                .release()
+        }
+    }
+
     var writeStream: WriteStream {
-        return { ptr, buff, size in
-            guard let ptr, let buff else {
+        return {
+            ptr,
+            buff,
+            size in
+            guard let ptr,
+                  let buff
+            else {
                 return 0
             }
 
             do {
-                let handler = Unmanaged<WriteHandler>.fromOpaque(ptr.pointee.context).takeRetainedValue()
+                let handler = Unmanaged<WriteHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
 
                 let rawPointer = UnsafeRawPointer(buff)
                 let data = Data(bytes: rawPointer, count: size)
                 try handler.write(data)
+
                 return size
             } catch {
                 return Int(0)

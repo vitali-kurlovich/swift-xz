@@ -11,6 +11,8 @@ typealias CReadStream = @convention(c) (
     UnsafeMutablePointer<Int>?
 ) -> Int32
 
+typealias FinalizeReadStream = @convention(c) (UnsafePointer<ISeqInStream_>?) -> Void
+
 final class ReadHandler: @unchecked Sendable {
     private let readFunc: (Int) throws -> Data?
 
@@ -28,15 +30,31 @@ extension ReadHandler {
         UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
     }
 
+    var finalize: FinalizeReadStream {
+        return { ptr in
+            guard let ptr else {
+                return
+            }
+
+            Unmanaged<ReadHandler>
+                .fromOpaque(ptr.pointee.context)
+                .release()
+        }
+    }
+
     var readStream: CReadStream {
-        return { ptr,
+        return {
+            ptr,
             buff,
             size in
-            guard let ptr, let size, let buff else {
+            guard let ptr,
+                  let size,
+                  let buff
+            else {
                 return SZ_ERROR_READ
             }
 
-            let handler = Unmanaged<ReadHandler>.fromOpaque(ptr.pointee.context).takeRetainedValue()
+            let handler = Unmanaged<ReadHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
 
             do {
                 guard let data = try handler.read(length: size.pointee) else {

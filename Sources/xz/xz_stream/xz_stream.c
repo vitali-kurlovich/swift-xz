@@ -46,8 +46,12 @@ int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
         &isMT,          // Multi-threading status output
         NULL            // Optional progress callback (ICompressProgress*)
     );
+    
+    // 5. Cleanup Swift resources
+    inStream -> Finalize(inStream);
+    outStream -> Finalize(outStream);
 
-    // 5. Cleanup decoder instance
+    // 6. Cleanup decoder instance
     XzDecMt_Destroy(dec);
 
     if (res != SZ_OK) {
@@ -77,7 +81,11 @@ int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
     // 4. Encode stream
     SRes res = Xz_Encode(outStream, inStream, &props, NULL);
     
-    // 5. Cleanup decoder instance
+    // 5. Cleanup Swift resources
+    inStream -> Finalize(inStream);
+    outStream -> Finalize(outStream);
+    
+    // 6. Cleanup decoder instance
     XzEnc_Destroy(enc);
     
     if (res != SZ_OK) {

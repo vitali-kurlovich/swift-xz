@@ -59,17 +59,20 @@ struct XZEncoderTests {
         // 3. Clean up the file automatically when the test finishes
         defer {
             try? FileManager.default.removeItem(at: fileURL)
-            // try? FileManager.default.removeItem(at: expectedURL)
         }
 
         let encoder = XZEncoder()
 
-        try encoder.encode(from: TestData.expected, writeToUrl: fileURL)
+        let data = TestData.generate(1024 * 1024 * 10)
+
+        #expect(data.count >= 1024 * 1024 * 10)
+
+        try encoder.encode(from: data, writeToUrl: fileURL)
 
         let result = try Data(contentsOf: fileURL)
 
         let decoder = XZDecoder()
 
-        #expect(try decoder.decode(from: result) == TestData.expected)
+        #expect(try decoder.decode(from: result) == data)
     }
 }

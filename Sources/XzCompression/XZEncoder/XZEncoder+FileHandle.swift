@@ -7,23 +7,23 @@ import class Foundation.FileHandle
 import class Foundation.FileManager
 import struct Foundation.URL
 
-public extension XZDecoder {
-    func decode(from fileHandle: FileHandle) throws(XZError) -> Data {
+public extension XZEncoder {
+    func encode(from fileHandle: FileHandle) throws(XZError) -> Data {
         var result = Data()
-        try decode(from: fileHandle, write: { data in
+        try encode(from: fileHandle, write: { data in
             result.append(data)
         })
 
         return result
     }
 
-    func decode(from fileUrl: URL) throws -> Data {
+    func encode(from fileUrl: URL) throws -> Data {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         let data: Data
 
         do {
-            data = try decode(from: readHandler)
+            data = try encode(from: readHandler)
         } catch {
             try readHandler.close()
             throw error
@@ -35,19 +35,19 @@ public extension XZDecoder {
     }
 }
 
-public extension XZDecoder {
-    func decode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void) throws(
+public extension XZEncoder {
+    func encode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void) throws(
         XZError
     ) {
-        try decode(read: { length in
+        try encode(read: { length in
             try fileHandle.read(upToCount: length)
         }, write: writeFunc)
     }
 
-    func decode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void) throws {
+    func encode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
         do {
-            try decode(from: readHandler, write: writeFunc)
+            try encode(from: readHandler, write: writeFunc)
         } catch {
             try readHandler.close()
             throw error
@@ -57,14 +57,14 @@ public extension XZDecoder {
     }
 }
 
-public extension XZDecoder {
-    func decode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle) throws(XZError) {
-        try decode(read: read, write: { data in
+public extension XZEncoder {
+    func encode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle) throws(XZError) {
+        try encode(read: read, write: { data in
             try writeHandle.write(contentsOf: data)
         })
     }
 
-    func decode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL) throws {
+    func encode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL) throws {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -80,7 +80,7 @@ public extension XZDecoder {
         let writeHandler = try FileHandle(forWritingTo: fileUrl)
 
         do {
-            try decode(read: read, writeToFile: writeHandler)
+            try encode(read: read, writeToFile: writeHandler)
 
         } catch {
             try writeHandler.close()
@@ -91,14 +91,14 @@ public extension XZDecoder {
     }
 }
 
-public extension XZDecoder {
-    func decode(from data: Data, writeToFile writeHandle: FileHandle) throws(XZError) {
-        try decode(from: data) { data in
+public extension XZEncoder {
+    func encode(from data: Data, writeToFile writeHandle: FileHandle) throws(XZError) {
+        try encode(from: data) { data in
             try writeHandle.write(contentsOf: data)
         }
     }
 
-    func decode(from data: Data, writeToUrl fileUrl: URL) throws {
+    func encode(from data: Data, writeToUrl fileUrl: URL) throws {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -113,7 +113,7 @@ public extension XZDecoder {
 
         let writeHandler = try FileHandle(forWritingTo: fileUrl)
         do {
-            try decode(from: data, writeToFile: writeHandler)
+            try encode(from: data, writeToFile: writeHandler)
         } catch {
             try writeHandler.close()
             throw error
@@ -123,26 +123,26 @@ public extension XZDecoder {
     }
 }
 
-public extension XZDecoder {
-    func decode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle) throws {
-        try decode(from: fileHandle) { data in
+public extension XZEncoder {
+    func encode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle) throws {
+        try encode(from: fileHandle) { data in
             try writeHandle.write(contentsOf: data)
         }
     }
 
-    func decode(from fileHandle: FileHandle, writeToUrl fileUrl: URL) throws {
-        try decode(read: { length in
+    func encode(from fileHandle: FileHandle, writeToUrl fileUrl: URL) throws {
+        try encode(read: { length in
             try fileHandle.read(upToCount: length)
         }, writeToUrl: fileUrl)
     }
 }
 
-public extension XZDecoder {
-    func decode(from fileUrl: URL, writeToFile writeHandle: FileHandle) throws {
+public extension XZEncoder {
+    func encode(from fileUrl: URL, writeToFile writeHandle: FileHandle) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {
-            try decode(from: readHandler, writeToFile: writeHandle)
+            try encode(from: readHandler, writeToFile: writeHandle)
 
         } catch {
             try readHandler.close()
@@ -152,11 +152,11 @@ public extension XZDecoder {
         try readHandler.close()
     }
 
-    func decode(from fileUrl: URL, writeToUrl fileWriteUrl: URL) throws {
+    func encode(from fileUrl: URL, writeToUrl fileWriteUrl: URL) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {
-            try decode(from: readHandler, writeToUrl: fileWriteUrl)
+            try encode(from: readHandler, writeToUrl: fileWriteUrl)
 
         } catch {
             try readHandler.close()

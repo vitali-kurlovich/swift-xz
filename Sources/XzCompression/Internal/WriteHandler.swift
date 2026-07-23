@@ -4,7 +4,7 @@
 //
 
 import CLzma
-import Foundation
+import struct Foundation.Data
 
 typealias WriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?, UnsafeRawPointer?, Int) -> Int
 typealias FinalizeWriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?) -> Void

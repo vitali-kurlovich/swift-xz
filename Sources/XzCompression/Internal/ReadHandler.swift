@@ -3,7 +3,7 @@
 //
 
 import CLzma
-import Foundation
+import struct Foundation.Data
 
 typealias CReadStream = @convention(c) (
     UnsafePointer<ISeqInStream_>?,

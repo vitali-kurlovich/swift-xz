@@ -344,6 +344,7 @@ Z7_C_IFACE_DECL (ISeqInStream)
   SRes (*Read)(ISeqInStreamPtr p, void *buf, size_t *size);
     /* if (input(*size) != 0 && output(*size) == 0) means end_of_stream.
        (output(*size) < input(*size)) is allowed */
+  void (*Finalize)(ISeqInStreamPtr p);
   void *context;
 };
 #define ISeqInStream_Read(p, buf, size) (p)->Read(p, buf, size)
@@ -361,6 +362,7 @@ Z7_C_IFACE_DECL (ISeqOutStream)
   size_t (*Write)(ISeqOutStreamPtr p, const void *buf, size_t size);
     /* Returns: result - the number of actually written bytes.
        (result < size) means error */
+  void (*Finalize)(ISeqOutStreamPtr p);
   void *context;
 };
 #define ISeqOutStream_Write(p, buf, size) (p)->Write(p, buf, size)

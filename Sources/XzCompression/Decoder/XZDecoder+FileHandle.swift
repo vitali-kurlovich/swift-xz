@@ -7,6 +7,7 @@ import class Foundation.FileHandle
 import class Foundation.FileManager
 import struct Foundation.URL
 
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
     func decode(from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) -> Data {
         var result = Data()
@@ -35,6 +36,7 @@ public extension XZDecoder {
     }
 }
 
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
     func decode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(
         XZError
@@ -57,6 +59,7 @@ public extension XZDecoder {
     }
 }
 
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
     func decode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
         try decode(read: read, write: { data in
@@ -95,6 +98,7 @@ public extension XZDecoder {
     }
 }
 
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
     func decode(from data: Data, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
         try decode(from: data, write: { data in
@@ -131,6 +135,7 @@ public extension XZDecoder {
     }
 }
 
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
     func decode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
         try decode(from: fileHandle, write: { data in
@@ -145,6 +150,7 @@ public extension XZDecoder {
     }
 }
 
+@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
     func decode(from fileUrl: URL, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import XzCompression
+import XzCompression
 
 struct XZDecoderTests {
     @Test
@@ -9,30 +9,7 @@ struct XZDecoderTests {
 
         let data = TestData.compressed
 
-        var position = data.startIndex
-        let size = data.count
-
-        var result = Data()
-        do {
-            try decoder.decode { length in
-                let rangeLength = Swift.min(length, size - position)
-
-                if rangeLength == 0 {
-                    return nil
-                }
-
-                let range = position ..< position + rangeLength
-                position += rangeLength
-
-                return data[range]
-
-            } write: { data in
-                result.append(data)
-            }
-
-        } catch {
-            #expect(error == .crcError)
-        }
+        let result = try data.decode(with: decoder)
 
         #expect(TestData.expected == result)
     }

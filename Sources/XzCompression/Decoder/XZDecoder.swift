@@ -3,7 +3,7 @@
 //
 
 import CLzma
-import Foundation
+import struct Foundation.Data
 
 public struct XZDecoder: Sendable {
     public init() {}
@@ -18,10 +18,12 @@ public extension XZDecoder {
 
         var readStream = ISeqInStream(
             Read: readHandler.readStream,
+            Finalize: readHandler.finalize,
             context: readHandler.context
         )
         var writeStream = ISeqOutStream(
             Write: writeHandler.writeStream,
+            Finalize: writeHandler.finalize,
             context: writeHandler.context
         )
 

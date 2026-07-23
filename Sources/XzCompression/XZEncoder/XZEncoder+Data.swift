@@ -4,6 +4,7 @@
 
 import struct Foundation.Data
 
+@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension XZEncoder {
     func encode(from data: Data, write: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
         var position = data.startIndex
@@ -25,6 +26,7 @@ public extension XZEncoder {
     }
 }
 
+@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension XZEncoder {
     func encode(from data: Data, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) -> Data {
         var result = Data()

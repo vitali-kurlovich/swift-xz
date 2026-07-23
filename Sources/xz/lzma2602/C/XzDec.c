@@ -1300,11 +1300,11 @@ SRes XzUnpacker_Code(CXzUnpacker *p, Byte *dest, SizeT *destLen,
           const Byte *ptr = p->buf;
           p->state = XZ_STATE_STREAM_FOOTER;
           p->pos = 0;
-            
+            /*
             if (p->outDataWritten == *destLen) {
                 return SZ_OK;
             }
-          
+          */
           if (CRC_GET_DIGEST(p->crc) != GetUi32a(ptr))
             return SZ_ERROR_CRC;
         }

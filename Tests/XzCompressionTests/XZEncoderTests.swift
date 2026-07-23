@@ -21,6 +21,16 @@ struct XZEncoderTests {
         #expect(try decoder.decode(from: result) == data)
     }
 
+    @Test func error() throws {
+        let encoder = XZEncoder()
+
+        #expect(throws: XZError.writeError) {
+            try encoder.encode(from: TestData.expected) { _ in
+                throw IOError.writeError
+            }
+        }
+    }
+
     @Test("Encode to file")
     func fileEncode() throws {
         // 1. Get the system temporary directory URL

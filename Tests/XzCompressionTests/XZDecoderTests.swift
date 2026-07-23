@@ -2,12 +2,39 @@ import Foundation
 import Testing
 import XzCompression
 
+enum IOError: Error {
+    case readError
+    case writeError
+}
+
 struct XZDecoderTests {
     @Test
     func decode() throws {
         let decoder = XZDecoder()
 
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
+    }
+
+    @Test func error() throws {
+        let decoder = XZDecoder()
+
+        #expect(throws: XZError.inputEofError) {
+            try decoder.decode(from: TestData.inputEofError)
+        }
+
+        #expect(throws: XZError.noArchive) {
+            try decoder.decode(from: TestData.incorrectMagic)
+        }
+
+        #expect(throws: XZError.crcError) {
+            try decoder.decode(from: TestData.incorrectCrc)
+        }
+
+        #expect(throws: XZError.writeError) {
+            try decoder.decode(from: TestData.compressed) { _ in
+                throw IOError.writeError
+            }
+        }
     }
 
     @Test("Decompress to file")
@@ -50,7 +77,6 @@ struct XZDecoderTests {
         // 3. Clean up the file automatically when the test finishes
         defer {
             try? FileManager.default.removeItem(at: fileURL)
-            // try? FileManager.default.removeItem(at: expectedURL)
         }
 
         let decoder = XZDecoder()

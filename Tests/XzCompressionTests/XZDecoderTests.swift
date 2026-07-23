@@ -26,7 +26,7 @@ struct XZDecoderTests {
 
                 return data[range]
 
-            } writeFunc: { data in
+            } write: { data in
                 result.append(data)
             }
 

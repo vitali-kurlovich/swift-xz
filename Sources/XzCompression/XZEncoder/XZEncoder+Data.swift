@@ -5,7 +5,7 @@
 import struct Foundation.Data
 
 public extension XZEncoder {
-    func encode(from data: Data, write: @escaping (Data) throws -> Void) throws(XZError) {
+    func encode(from data: Data, write: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
         var position = data.startIndex
         let size = data.count
 
@@ -21,16 +21,16 @@ public extension XZEncoder {
 
             return data[range]
 
-        }, write: write)
+        }, write: write, progress: progress)
     }
 }
 
 public extension XZEncoder {
-    func encode(from data: Data) throws(XZError) -> Data {
+    func encode(from data: Data, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) -> Data {
         var result = Data()
-        try encode(from: data) { data in
+        try encode(from: data, write: { data in
             result.append(data)
-        }
+        }, progress: progress)
         return result
     }
 }

@@ -11,10 +11,13 @@ public struct XZDecoder: Sendable {
 
 public extension XZDecoder {
     func decode(read: @escaping (Int) throws -> Data?,
-                write: @escaping (Data) throws -> Void) throws(XZError)
+                write: @escaping (Data) throws -> Void,
+                progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError)
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
+
+        let progressHandler = CompressProgressHandler(progressFunc: progress)
 
         var readStream = ISeqInStream(
             Read: readHandler.readStream,
@@ -27,7 +30,13 @@ public extension XZDecoder {
             context: writeHandler.context
         )
 
-        let result = Decode_XZ_Stream(&readStream, &writeStream)
+        var compressProgress = ICompressProgress(
+            Progress: progressHandler.compressProgress,
+            Finalize: progressHandler.finalize,
+            context: progressHandler.context
+        )
+
+        let result = Decode_XZ_Stream(&readStream, &writeStream, &compressProgress)
 
         guard result == SZ_OK else {
             throw XZError(rawValue: Int32(result)) ?? .unknownError

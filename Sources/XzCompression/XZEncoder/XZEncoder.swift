@@ -17,10 +17,16 @@ public struct XZEncoder: Sendable {
 
 public extension XZEncoder {
     func encode(read: @escaping (Int) throws -> Data?,
-                write: @escaping (Data) throws -> Void) throws(XZError)
+                write: @escaping (Data) throws -> Void,
+                progress: @escaping (Int, Int) -> Bool = { inSize, outSize in
+                    print("encode progress  inSize:\(inSize) outSize: \(outSize)")
+                    return false
+                }) throws(XZError)
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
+
+        let progressHandler = CompressProgressHandler(progressFunc: progress)
 
         var readStream = ISeqInStream(
             Read: readHandler.readStream,
@@ -33,7 +39,13 @@ public extension XZEncoder {
             context: writeHandler.context
         )
 
-        let res = Encode_XZ_Stream_Level(&readStream, &writeStream, .init(level))
+        var compressProgress = ICompressProgress(
+            Progress: progressHandler.compressProgress,
+            Finalize: progressHandler.finalize,
+            context: progressHandler.context
+        )
+
+        let res = Encode_XZ_Stream_Level(&readStream, &writeStream, &compressProgress, .init(level))
 
         guard res == SZ_OK else {
             throw XZError(rawValue: Int32(res)) ?? .unknownError

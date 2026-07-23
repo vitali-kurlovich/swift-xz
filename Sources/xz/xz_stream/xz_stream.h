@@ -9,10 +9,10 @@
 
 EXTERN_C_BEGIN
 
-int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream);
+int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress);
 
-int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream);
-int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, int level);
+int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress);
+int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress, int level);
 
 EXTERN_C_END
 

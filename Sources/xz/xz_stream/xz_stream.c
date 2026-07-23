@@ -15,7 +15,7 @@
 // Standard memory allocation wrapper provided by the LZMA SDK
 static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
-int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
+int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
     // 1. Create decoder instance using memory allocators from 7zAlloc
     CXzDecMtHandle dec = XzDecMt_Create(&g_Alloc, &g_Alloc);
     if (!dec) {
@@ -44,12 +44,13 @@ int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
         inStream,       // Input stream interface
         &stat,          // Receives decompression stats
         &isMT,          // Multi-threading status output
-        NULL            // Optional progress callback (ICompressProgress*)
+        progress            // Optional progress callback (ICompressProgress*)
     );
     
     // 5. Cleanup Swift resources
     inStream -> Finalize(inStream);
     outStream -> Finalize(outStream);
+    progress -> Finalize(progress);
 
     // 6. Cleanup decoder instance
     XzDecMt_Destroy(dec);
@@ -63,11 +64,11 @@ int Decode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
     return SZ_OK;
 }
 
-int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream) {
-    return Encode_XZ_Stream_Level(inStream, outStream, 7);
+int Encode_XZ_Stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
+    return Encode_XZ_Stream_Level(inStream, outStream, progress, -1);
 }
 
-int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, int level) {
+int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress, int level) {
     // 1. Create encoder instance using memory allocators from 7zAlloc
     CXzEncHandle enc = XzEnc_Create(&g_Alloc, &g_Alloc);
     
@@ -90,11 +91,12 @@ int Encode_XZ_Stream_Level(ISeqInStream *inStream, ISeqOutStream *outStream, int
     XzEnc_SetProps(enc, &props);
     
     // 4. Encode stream
-    SRes res = Xz_Encode(outStream, inStream, &props, NULL);
+    SRes res = Xz_Encode(outStream, inStream, &props, progress);
     
     // 5. Cleanup Swift resources
     inStream -> Finalize(inStream);
     outStream -> Finalize(outStream);
+    progress -> Finalize(progress);
     
     // 6. Cleanup decoder instance
     XzEnc_Destroy(enc);

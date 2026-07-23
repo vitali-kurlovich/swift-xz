@@ -453,6 +453,8 @@ Z7_C_IFACE_DECL (ICompressProgress)
   SRes (*Progress)(ICompressProgressPtr p, UInt64 inSize, UInt64 outSize);
     /* Returns: result. (result != SZ_OK) means break.
        Value (UInt64)(Int64)-1 for size means unknown value. */
+    void (*Finalize)(ICompressProgressPtr p);
+    void *context;
 };
 
 #define ICompressProgress_Progress(p, inSize, outSize) (p)->Progress(p, inSize, outSize)

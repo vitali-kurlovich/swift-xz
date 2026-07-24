@@ -20,7 +20,10 @@ public extension XZDecoder {
             let range = position ..< position + rangeLength
             position += rangeLength
 
-            return data[range]
+            let buffer = data[range]
+            
+            debugPrint(buffer.debugFormatted)
+            return buffer
 
         }, write: write,
         progress: progress)

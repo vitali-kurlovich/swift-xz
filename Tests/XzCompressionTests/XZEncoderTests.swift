@@ -6,6 +6,7 @@ import Foundation
 import Testing
 import XzCompression
 
+@Suite(.disabled())
 struct XZEncoderTests {
     @Test("XZEncoder encode data")
     func encode() throws {

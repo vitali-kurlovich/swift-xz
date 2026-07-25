@@ -8,12 +8,11 @@
 #include "types.h"
 #include "status.h"
 
-typedef struct {
-    size_t input_buffer_size;
-    size_t output_buffer_size;
-} lzma_decompress_config;
+#include "lzma_stream.h"
 
-void lzma_ds_config_init( lzma_decompress_config *config);
+typedef lzma_buffer_config  lzma_decompress_config;
+
+void lzma_encoder_config_init( lzma_decompress_config *config);
 
 lzma_ret_status lzma_decompress_stream(lzma_decompress_config config, ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress);
 

@@ -51,11 +51,10 @@ public extension XZEncoder {
             context: progressHandler.context
         )
 
-        let config = lzma_compress_config(
-            input_buffer_size: configuration.inputBufferSize,
-            output_buffer_size: configuration.outputBufferSize,
-            preset: configuration.preset
-        )
+        let buffer_config = lzma_buffer_config(input_buffer_size: configuration.inputBufferSize, output_buffer_size: configuration.outputBufferSize)
+
+        let config = lzma_compress_config(buffer_config: buffer_config,
+                                          preset: configuration.preset)
 
         let status = lzma_compress_stream(config, &readStream, &writeStream, &compressProgress)
 

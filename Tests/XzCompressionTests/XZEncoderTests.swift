@@ -6,100 +6,98 @@ import Foundation
 import Testing
 import XzCompression
 
-struct XZEncoderTests {
-    @Test("XZEncoder encode data")
-    func encode() throws {
-        let encoder = XZEncoder()
+struct XZEncoderTests { func encode() throws {
+    let encoder = XZEncoder()
 
-        let data = TestData.expected
+    let data = TestData.expected
 
-        let result = try encoder.encode(from: data)
+    let result = try encoder.encode(from: data)
 
-        #expect(data != result)
+    #expect(data != result)
 
-        let decoder = XZDecoder()
-        #expect(try decoder.decode(from: result) == data)
-    }
+    let decoder = XZDecoder()
+    #expect(try decoder.decode(from: result) == data)
+}
 
-    @Test("XZEncoder Error handling")
-    func error() throws {
-        let encoder = XZEncoder()
+@Test("XZEncoder Error handling")
+func error() throws {
+    let encoder = XZEncoder()
 
-        #expect(throws: XZError.writeError) {
-            try encoder.encode(from: TestData.expected) { _ in
-                throw IOError.writeError
-            }
+    #expect(throws: XZError.writeError) {
+        try encoder.encode(from: TestData.expected) { _ in
+            throw IOError.writeError
         }
     }
+}
 
-    @Test("XZEncoder Encode to file")
-    func fileEncode() throws {
-        // 1. Get the system temporary directory URL
-        let tempDir = FileManager.default.temporaryDirectory
+@Test("XZEncoder Encode to file")
+func fileEncode() throws {
+    // 1. Get the system temporary directory URL
+    let tempDir = FileManager.default.temporaryDirectory
 
-        // 2. Create a unique filename for isolation
-        let fileURL = tempDir.appendingPathComponent(UUID().uuidString + ".txt")
-        let compessedURL = tempDir.appendingPathComponent(UUID().uuidString + ".moc")
+    // 2. Create a unique filename for isolation
+    let fileURL = tempDir.appendingPathComponent(UUID().uuidString + ".txt")
+    let compessedURL = tempDir.appendingPathComponent(UUID().uuidString + ".moc")
 
-        // 3. Clean up the file automatically when the test finishes
-        defer {
-            try? FileManager.default.removeItem(at: fileURL)
-            try? FileManager.default.removeItem(at: compessedURL)
-        }
-
-        // 4. Write mock data to the temporary file
-        try TestData.expected.write(to: fileURL, options: [.atomic])
-
-        let encoder = XZEncoder()
-
-        try encoder.encode(from: fileURL, writeToUrl: compessedURL)
-
-        let decoder = XZDecoder()
-
-        #expect(try decoder.decode(from: compessedURL) == TestData.expected)
+    // 3. Clean up the file automatically when the test finishes
+    defer {
+        try? FileManager.default.removeItem(at: fileURL)
+        try? FileManager.default.removeItem(at: compessedURL)
     }
 
-    @Test("XZEncoder Large dataset")
-    func decodeLargeData() throws {
-        let encoder = XZEncoder()
-        let decoder = XZDecoder()
+    // 4. Write mock data to the temporary file
+    try TestData.expected.write(to: fileURL, options: [.atomic])
 
-        let data = TestData.generate(1024 * 1024 * 10)
-        #expect(data.count >= 1024 * 1024 * 10)
+    let encoder = XZEncoder()
 
-        let compressed = try encoder.encode(from: data)
+    try encoder.encode(from: fileURL, writeToUrl: compessedURL)
 
-        #expect(compressed.isEmpty == false)
+    let decoder = XZDecoder()
 
-        #expect(try decoder.decode(from: compressed) == data)
+    #expect(try decoder.decode(from: compessedURL) == TestData.expected)
+}
+
+@Test("XZEncoder Large dataset")
+func decodeLargeData() throws {
+    let encoder = XZEncoder()
+    let decoder = XZDecoder()
+
+    let data = TestData.generate(1024 * 1024 * 10)
+    #expect(data.count >= 1024 * 1024 * 10)
+
+    let compressed = try encoder.encode(from: data)
+
+    #expect(compressed.isEmpty == false)
+
+    #expect(try decoder.decode(from: compressed) == data)
+}
+
+@Test("XZEncoder Compress Data to file")
+func decodeToFile() throws {
+    // 1. Get the system temporary directory URL
+    let tempDir = FileManager.default.temporaryDirectory
+
+    // 2. Create a unique filename for isolation
+    let fileURL = tempDir.appendingPathComponent(UUID().uuidString + ".moc")
+
+    // 3. Clean up the file automatically when the test finishes
+    defer {
+        try? FileManager.default.removeItem(at: fileURL)
     }
 
-    @Test("XZEncoder Compress Data to file")
-    func decodeToFile() throws {
-        // 1. Get the system temporary directory URL
-        let tempDir = FileManager.default.temporaryDirectory
+    let encoder = XZEncoder()
+    let decoder = XZDecoder()
 
-        // 2. Create a unique filename for isolation
-        let fileURL = tempDir.appendingPathComponent(UUID().uuidString + ".moc")
+    let data = TestData.generate(1024 * 1024 * 10)
 
-        // 3. Clean up the file automatically when the test finishes
-        defer {
-            try? FileManager.default.removeItem(at: fileURL)
-        }
+    #expect(data.count >= 1024 * 1024 * 10)
 
-        let encoder = XZEncoder()
-        let decoder = XZDecoder()
+    try encoder.encode(from: data, writeToUrl: fileURL)
 
-        let data = TestData.generate(1024 * 1024 * 10)
+    let result = try Data(contentsOf: fileURL)
 
-        #expect(data.count >= 1024 * 1024 * 10)
+    #expect(result.isEmpty == false)
 
-        try encoder.encode(from: data, writeToUrl: fileURL)
-
-        let result = try Data(contentsOf: fileURL)
-
-        #expect(result.isEmpty == false)
-
-        #expect(try decoder.decode(from: result) == data)
-    }
+    #expect(try decoder.decode(from: result) == data)
+}
 }

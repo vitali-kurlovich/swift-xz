@@ -5,5 +5,6 @@
 
 #include "../types.h"
 
+#include "../lzma_stream.h"
 #include "../lzma_decompress_stream.h"
 #include "../lzma_compress_stream.h"

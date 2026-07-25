@@ -4,7 +4,7 @@
 
 import struct Foundation.Data
 
-@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
     func decode(configuration: Configuration = .init(),
                 from data: Data,
@@ -40,7 +40,7 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
     func decode(configuration: Configuration = .init(),
                 from data: Data,

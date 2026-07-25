@@ -2,8 +2,13 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import clzma
 import struct Foundation.Data
+
+#if canImport(Compression)
+    import Compression
+#else
+    import clzma
+#endif
 
 public struct LzmaDecoder: Sendable {
     public init() {}
@@ -21,7 +26,7 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
     func decode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
@@ -29,44 +34,90 @@ public extension LzmaDecoder {
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws
     {
-        let readHandler = ReadHandler(read: read)
-        let writeHandler = WriteHandler(write: write)
+        #if canImport(Compression)
+            var inSize = 0
+            var outSize = 0
 
-        let progressHandler = StreamProgressHandler(progressFunc: progress)
-        let cancelHandler = StreamCancelationHandler(cancel: cancel)
+            do {
+                let inputFilter = try InputFilter(.decompress,
+                                                  using: .lzma,
+                                                  bufferCapacity: configuration.inputBufferSize,
+                                                  readingFrom: {
+                                                      if cancel() {
+                                                          throw LzmaError.canceled
+                                                      }
 
-        var readStream = ISeqInStream(
-            Read: readHandler.readStream,
-            Finalize: readHandler.finalize,
-            context: readHandler.context
-        )
-        var writeStream = ISeqOutStream(
-            Write: writeHandler.writeStream,
-            Finalize: writeHandler.finalize,
-            context: writeHandler.context
-        )
+                                                      do {
+                                                          let data = try read($0)
+                                                          inSize += data?.count ?? 0
+                                                          return data
+                                                      } catch {
+                                                          throw LzmaError.readError
+                                                      }
+                                                  })
 
-        var streamProgress = IStreamProgress(
-            Progress: progressHandler.progress,
-            Finalize: progressHandler.finalize,
-            context: progressHandler.context
-        )
+                while let page = try inputFilter.readData(ofLength: configuration.outputBufferSize) {
+                    if cancel() {
+                        throw LzmaError.canceled
+                    }
 
-        var caceletion = IStreamCancelation(
-            Cancelation: cancelHandler.cancelation,
-            Finalize: cancelHandler.finalize,
-            context: cancelHandler.context
-        )
+                    outSize += page.count
 
-        let config = lzma_decompress_config(
-            input_buffer_size: .init(configuration.inputBufferSize),
-            output_buffer_size: .init(configuration.outputBufferSize)
-        )
+                    do {
+                        try write(page)
+                    } catch {
+                        throw LzmaError.writeError
+                    }
 
-        let status = lzma_decompress_stream(config, &readStream, &writeStream, &streamProgress, &caceletion)
+                    progress(inSize, outSize)
+                }
+            } catch let error as LzmaError {
+                throw error
+            } catch {
+                throw LzmaError.dataError
+            }
 
-        guard status == STATUS_OK else {
-            throw LzmaError(status)
-        }
+        #else
+
+            let readHandler = ReadHandler(read: read)
+            let writeHandler = WriteHandler(write: write)
+
+            let progressHandler = StreamProgressHandler(progressFunc: progress)
+            let cancelHandler = StreamCancelationHandler(cancel: cancel)
+
+            var readStream = ISeqInStream(
+                Read: readHandler.readStream,
+                Finalize: readHandler.finalize,
+                context: readHandler.context
+            )
+            var writeStream = ISeqOutStream(
+                Write: writeHandler.writeStream,
+                Finalize: writeHandler.finalize,
+                context: writeHandler.context
+            )
+
+            var streamProgress = IStreamProgress(
+                Progress: progressHandler.progress,
+                Finalize: progressHandler.finalize,
+                context: progressHandler.context
+            )
+
+            var caceletion = IStreamCancelation(
+                Cancelation: cancelHandler.cancelation,
+                Finalize: cancelHandler.finalize,
+                context: cancelHandler.context
+            )
+
+            let config = lzma_decompress_config(
+                input_buffer_size: .init(configuration.inputBufferSize),
+                output_buffer_size: .init(configuration.outputBufferSize)
+            )
+
+            let status = lzma_decompress_stream(config, &readStream, &writeStream, &streamProgress, &caceletion)
+
+            guard status == STATUS_OK else {
+                throw LzmaError(status)
+            }
+        #endif
     }
 }

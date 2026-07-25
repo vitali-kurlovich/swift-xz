@@ -75,17 +75,26 @@ struct LzmaDecoderTests {
                                progress: { inSize, outSize in
                                    progress.append([inSize, outSize])
                                })
-
-        #expect(progress == [[512, 512], [512, 815], [768, 1327], [768, 1368]])
+        #if canImport(Compression)
+            #expect(progress == [[512, 512], [768, 1024], [768, 1368]])
+        #else
+            #expect(progress == [[512, 512], [512, 815], [768, 1327], [768, 1368]])
+        #endif
     }
 
     @Test("Error handling")
     func error() throws {
         let decoder = LzmaDecoder()
 
-        #expect(throws: LzmaError.formatError) {
-            try decoder.decode(from: TestData.incorrectMagic)
-        }
+        #if canImport(Compression)
+            #expect(throws: LzmaError.dataError) {
+                try decoder.decode(from: TestData.incorrectMagic)
+            }
+        #else
+            #expect(throws: LzmaError.formatError) {
+                try decoder.decode(from: TestData.incorrectMagic)
+            }
+        #endif
 
         #expect(throws: LzmaError.dataError) {
             try decoder.decode(from: TestData.incorrectCrc)

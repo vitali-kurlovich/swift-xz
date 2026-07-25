@@ -6,31 +6,35 @@ import PackageDescription
 let package = Package(
     name: "swift-xz",
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "XzCompression",
             targets: ["XzCompression"]
         ),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-
-        .target(name: "CLzma",
-                path: "Sources/xz"),
-
+        .systemLibrary(
+            name: "liblzma",
+            pkgConfig: "liblzma",
+            providers: [
+                .brew(["xz"]),
+                .apt(["liblzma-dev"]),
+            ]
+        ),
+        .target(name: "clzma",
+                dependencies: [
+                    .target(name: "liblzma"),
+                ]),
         .target(
             name: "XzCompression",
             dependencies: [
-                .target(name: "CLzma"),
+                .target(name: "clzma"),
             ]
-
         ),
         .testTarget(
             name: "XzCompressionTests",
             dependencies: ["XzCompression"]
-
         ),
     ],
+
     swiftLanguageModes: [.v6]
 )

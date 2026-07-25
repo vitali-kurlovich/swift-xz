@@ -2,14 +2,15 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import CLzma
+import clzma
 import struct Foundation.Data
 
 typealias CReadStream = @convention(c) (
     UnsafePointer<ISeqInStream_>?,
     UnsafeMutableRawPointer?,
-    UnsafeMutablePointer<Int>?
-) -> Int32
+    UnsafeMutablePointer<Int>?,
+    UnsafeMutablePointer<lzma_io_status>?
+) -> Void
 
 typealias FinalizeReadStream = @convention(c) (UnsafePointer<ISeqInStream_>?) -> Void
 
@@ -44,35 +45,28 @@ extension ReadHandler {
 
     @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     var readStream: CReadStream {
-        return {
-            ptr,
-            buff,
-            size in
-            guard let ptr,
-                  let size,
-                  let buff
-            else {
-                return SZ_ERROR_READ
+        return { ptr, buff, size, status in
+            guard let ptr, let size, let buff, let status else {
+                status?.pointee = STATUS_IO_READ_ERROR
+                return
             }
 
             let handler = Unmanaged<ReadHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
 
             do {
-                guard let data = try handler.read(length: size.pointee) else {
+                guard let data = try handler.read(length: .init(size.pointee)) else {
                     size.pointee = 0
-                    return SZ_OK
+                    return
                 }
 
                 data.bytes.withUnsafeBytes { buffer in
                     buff.copyMemory(from: buffer.baseAddress!, byteCount: buffer.count)
-                    size.pointee = buffer.count
+                    size.pointee = .init(buffer.count)
                 }
 
             } catch {
-                return SZ_ERROR_READ
+                status.pointee = STATUS_IO_READ_ERROR
             }
-
-            return SZ_OK
         }
     }
 }

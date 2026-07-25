@@ -2,25 +2,20 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import CLzma
-import Foundation
+import clzma
+import struct Foundation.Data
 
 public struct XZEncoder: Sendable {
-    /// Compression level (0 <= level <= 9)
-    ///
-    public var level: Int
-
-    public init(level: Int = -1) {
-        self.level = level
+    public var level: UInt
+    public init(level: UInt = 6) {
+        self.level = min(max(0, level), 9)
     }
 }
 
-@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension XZEncoder {
     func encode(read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Bool = { _, _ in
-                    false
+                progress: @escaping (Int, Int) -> Void = { _, _ in
                 }) throws(XZError)
     {
         let readHandler = ReadHandler(read: read)
@@ -45,10 +40,10 @@ public extension XZEncoder {
             context: progressHandler.context
         )
 
-        let res = Encode_XZ_Stream_Level(&readStream, &writeStream, &compressProgress, .init(level))
+        let status = lzma_compress_stream(&readStream, &writeStream, &compressProgress, .init(level))
 
-        guard res == SZ_OK else {
-            throw XZError(rawValue: Int32(res)) ?? .unknownError
+        guard status == STATUS_OK else {
+            throw XZError(status)
         }
     }
 }

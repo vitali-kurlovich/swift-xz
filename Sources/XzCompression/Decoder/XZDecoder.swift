@@ -2,18 +2,17 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import CLzma
+import clzma
 import struct Foundation.Data
 
 public struct XZDecoder: Sendable {
     public init() {}
 }
 
-@available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension XZDecoder {
     func decode(read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
@@ -37,10 +36,10 @@ public extension XZDecoder {
             context: progressHandler.context
         )
 
-        let result = Decode_XZ_Stream(&readStream, &writeStream, &compressProgress)
+        let status = lzma_decompress_stream(&readStream, &writeStream, &compressProgress)
 
-        guard result == SZ_OK else {
-            throw XZError(rawValue: Int32(result)) ?? .unknownError
+        guard status == STATUS_OK else {
+            throw XZError(status)
         }
     }
 }

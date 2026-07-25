@@ -3,10 +3,11 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import CLzma
+import clzma
 import struct Foundation.Data
 
-typealias WriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?, UnsafeRawPointer?, Int) -> Int
+typealias WriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?, UnsafeRawPointer?, Int, UnsafeMutablePointer<lzma_io_status>?) -> Int
+
 typealias FinalizeWriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?) -> Void
 
 final class WriteHandler: @unchecked Sendable {
@@ -40,13 +41,9 @@ extension WriteHandler {
 
     @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     var writeStream: WriteStream {
-        return {
-            ptr,
-            buff,
-            size in
-            guard let ptr,
-                  let buff
-            else {
+        return { ptr, buff, size, status in
+            guard let ptr, let buff, let status else {
+                status?.pointee = STATUS_IO_WRITE_ERROR
                 return 0
             }
 
@@ -59,8 +56,10 @@ extension WriteHandler {
 
                 return size
             } catch {
-                return Int(0)
+                status.pointee = STATUS_IO_WRITE_ERROR
             }
+
+            return 0
         }
     }
 }

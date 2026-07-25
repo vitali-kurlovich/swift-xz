@@ -9,7 +9,7 @@ import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) -> Data {
+    func encode(from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data {
         var result = Data()
         try encode(from: fileHandle, write: { data in
             result.append(data)
@@ -18,7 +18,7 @@ public extension XZEncoder {
         return result
     }
 
-    func encode(from fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws -> Data {
+    func encode(from fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         let data: Data
@@ -38,7 +38,7 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(
+    func encode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
         XZError
     ) {
         try encode(read: { length in
@@ -46,7 +46,7 @@ public extension XZEncoder {
         }, write: writeFunc, progress: progress)
     }
 
-    func encode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
         do {
             try encode(from: readHandler, write: writeFunc, progress: progress)
@@ -61,13 +61,13 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
+    func encode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) {
         try encode(read: read, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func encode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -100,13 +100,13 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from data: Data, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
+    func encode(from data: Data, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) {
         try encode(from: data, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func encode(from data: Data, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(from data: Data, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -137,13 +137,13 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         try encode(from: fileHandle, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func encode(from fileHandle: FileHandle, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(from fileHandle: FileHandle, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         try encode(read: { length in
             try fileHandle.read(upToCount: length)
         }, writeToUrl: fileUrl, progress: progress)
@@ -152,7 +152,7 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileUrl: URL, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(from fileUrl: URL, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {
@@ -170,7 +170,7 @@ public extension XZEncoder {
         try readHandler.close()
     }
 
-    func encode(from fileUrl: URL, writeToUrl fileWriteUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func encode(from fileUrl: URL, writeToUrl fileWriteUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {

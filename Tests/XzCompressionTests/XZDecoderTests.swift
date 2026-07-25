@@ -15,19 +15,15 @@ struct XZDecoderTests {
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
     }
 
-    @Test("XZDecoder Error handling", .disabled())
+    @Test("XZDecoder Error handling")
     func error() throws {
         let decoder = XZDecoder()
 
-        #expect(throws: XZError.inputEofError) {
-            try decoder.decode(from: TestData.inputEofError)
-        }
-
-        #expect(throws: XZError.noArchive) {
+        #expect(throws: XZError.formatError) {
             try decoder.decode(from: TestData.incorrectMagic)
         }
 
-        #expect(throws: XZError.crcError) {
+        #expect(throws: XZError.dataError) {
             try decoder.decode(from: TestData.incorrectCrc)
         }
 
@@ -38,7 +34,7 @@ struct XZDecoderTests {
         }
     }
 
-    @Test("XZDecoder Decompress to file", .disabled())
+    @Test("XZDecoder Decompress to file")
     func fileDecode() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -67,7 +63,7 @@ struct XZDecoderTests {
         #expect(try decoder.decode(from: fileURL) == TestData.expected)
     }
 
-    @Test("XZDecoder Decompress Data to file", .disabled())
+    @Test("XZDecoder Decompress Data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory

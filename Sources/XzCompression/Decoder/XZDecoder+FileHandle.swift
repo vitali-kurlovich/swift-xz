@@ -9,7 +9,7 @@ import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
-    func decode(from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) -> Data {
+    func decode(from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data {
         var result = Data()
         try decode(from: fileHandle, write: { data in
             result.append(data)
@@ -18,7 +18,7 @@ public extension XZDecoder {
         return result
     }
 
-    func decode(from fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws -> Data {
+    func decode(from fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         let data: Data
@@ -38,7 +38,7 @@ public extension XZDecoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
-    func decode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(
+    func decode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
         XZError
     ) {
         try decode(read: { length in
@@ -46,7 +46,7 @@ public extension XZDecoder {
         }, write: writeFunc, progress: progress)
     }
 
-    func decode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
         do {
             try decode(from: readHandler, write: writeFunc, progress: progress)
@@ -61,13 +61,13 @@ public extension XZDecoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
-    func decode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
+    func decode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) {
         try decode(read: read, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func decode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -100,13 +100,13 @@ public extension XZDecoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
-    func decode(from data: Data, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws(XZError) {
+    func decode(from data: Data, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) {
         try decode(from: data, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func decode(from data: Data, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(from data: Data, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -137,13 +137,13 @@ public extension XZDecoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
-    func decode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         try decode(from: fileHandle, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func decode(from fileHandle: FileHandle, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(from fileHandle: FileHandle, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         try decode(read: { length in
             try fileHandle.read(upToCount: length)
         }, writeToUrl: fileUrl, progress: progress)
@@ -152,7 +152,7 @@ public extension XZDecoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZDecoder {
-    func decode(from fileUrl: URL, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(from fileUrl: URL, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {
@@ -170,7 +170,7 @@ public extension XZDecoder {
         try readHandler.close()
     }
 
-    func decode(from fileUrl: URL, writeToUrl fileWriteUrl: URL, progress: @escaping (Int, Int) -> Bool = { _, _ in false }) throws {
+    func decode(from fileUrl: URL, writeToUrl fileWriteUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {

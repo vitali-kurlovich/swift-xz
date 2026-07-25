@@ -8,7 +8,7 @@ import class Foundation.FileManager
 import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZEncoder {
+public extension LzmaEncoder {
     func encode(configuration: EncoderConfiguration = .init(),
                 from fileHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
@@ -43,7 +43,7 @@ public extension XZEncoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZEncoder {
+public extension LzmaEncoder {
     func encode(configuration: EncoderConfiguration = .init(),
                 from fileHandle: FileHandle,
                 write writeFunc: @escaping (Data) throws -> Void,
@@ -74,7 +74,7 @@ public extension XZEncoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZEncoder {
+public extension LzmaEncoder {
     func encode(configuration: EncoderConfiguration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToFile writeHandle: FileHandle,
@@ -122,7 +122,7 @@ public extension XZEncoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZEncoder {
+public extension LzmaEncoder {
     func encode(configuration: EncoderConfiguration = .init(),
                 from data: Data,
                 writeToFile writeHandle: FileHandle,
@@ -180,7 +180,7 @@ public extension XZEncoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZEncoder {
+public extension LzmaEncoder {
     func encode(configuration: EncoderConfiguration = .init(),
                 from fileHandle: FileHandle,
                 writeToFile writeHandle: FileHandle,
@@ -206,7 +206,7 @@ public extension XZEncoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZEncoder {
+public extension LzmaEncoder {
     func encode(configuration: EncoderConfiguration = .init(),
                 from fileUrl: URL,
                 writeToFile writeHandle: FileHandle,

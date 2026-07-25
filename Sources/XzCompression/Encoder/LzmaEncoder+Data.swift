@@ -5,11 +5,10 @@
 import struct Foundation.Data
 
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
+public extension LzmaEncoder {
+    func encode(configuration: EncoderConfiguration = .init(),
                 from data: Data,
-                write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+                write: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -20,7 +19,7 @@ public extension XZDecoder {
         var position = data.startIndex
         let size = data.count
 
-        try decode(configuration: configuration,
+        try encode(configuration: configuration,
                    read: { length in
                        let rangeLength = Swift.min(length, size - position)
 
@@ -33,15 +32,15 @@ public extension XZDecoder {
 
                        return data[range]
 
-                   }, write: write,
-                   progress: progress)
+                   }, write: write, progress: progress)
     }
 }
 
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
-                from data: Data, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
+public extension LzmaEncoder {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from data: Data,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -50,7 +49,7 @@ public extension XZDecoder {
         )
 
         var result = Data()
-        try decode(configuration: configuration,
+        try encode(configuration: configuration,
                    from: data, write: { data in
                        result.append(data)
                    }, progress: progress)

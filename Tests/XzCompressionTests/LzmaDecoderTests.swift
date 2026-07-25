@@ -7,34 +7,34 @@ enum IOError: Error {
     case writeError
 }
 
-struct XZDecoderTests {
-    @Test("XZDecoder decode data")
+struct LzmaDecoderTests {
+    @Test("Decoder decode data")
     func decode() throws {
-        let decoder = XZDecoder()
+        let decoder = LzmaDecoder()
 
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
     }
 
-    @Test("XZDecoder Error handling")
+    @Test("Decoder error handling")
     func error() throws {
-        let decoder = XZDecoder()
+        let decoder = LzmaDecoder()
 
-        #expect(throws: XZError.formatError) {
+        #expect(throws: LzmaError.formatError) {
             try decoder.decode(from: TestData.incorrectMagic)
         }
 
-        #expect(throws: XZError.dataError) {
+        #expect(throws: LzmaError.dataError) {
             try decoder.decode(from: TestData.incorrectCrc)
         }
 
-        #expect(throws: XZError.writeError) {
+        #expect(throws: LzmaError.writeError) {
             try decoder.decode(from: TestData.compressed) { _ in
                 throw IOError.writeError
             }
         }
     }
 
-    @Test("XZDecoder Decompress to file")
+    @Test("Decoder decompress to file")
     func fileDecode() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -52,7 +52,7 @@ struct XZDecoderTests {
         // 4. Write mock data to the temporary file
         try TestData.compressed.write(to: fileURL, options: [.atomic])
 
-        let decoder = XZDecoder()
+        let decoder = LzmaDecoder()
 
         try decoder.decode(from: fileURL, writeToUrl: expectedURL)
 
@@ -63,7 +63,7 @@ struct XZDecoderTests {
         #expect(try decoder.decode(from: fileURL) == TestData.expected)
     }
 
-    @Test("XZDecoder Decompress Data to file")
+    @Test("Decoder decompress data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -76,7 +76,7 @@ struct XZDecoderTests {
             try? FileManager.default.removeItem(at: fileURL)
         }
 
-        let decoder = XZDecoder()
+        let decoder = LzmaDecoder()
 
         try decoder.decode(from: TestData.compressed, writeToUrl: fileURL)
 

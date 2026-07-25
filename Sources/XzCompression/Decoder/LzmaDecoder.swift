@@ -5,29 +5,26 @@
 import clzma
 import struct Foundation.Data
 
-public struct EncoderConfiguration: Equatable, Sendable {
+public struct LzmaDecoderConfiguration: Equatable, Sendable {
     public var inputBufferSize: Int
     public var outputBufferSize: Int
-    public var preset: UInt32
 
-    public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192, preset: UInt32 = 6) {
+    public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192) {
         self.inputBufferSize = inputBufferSize
         self.outputBufferSize = outputBufferSize
-        self.preset = min(max(0, preset), 9)
     }
 }
 
-public struct XZEncoder: Sendable {
+public struct LzmaDecoder: Sendable {
     public init() {}
 }
 
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
-public extension XZEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in
-                }) throws(XZError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
@@ -51,15 +48,15 @@ public extension XZEncoder {
             context: progressHandler.context
         )
 
-        let buffer_config = lzma_buffer_config(input_buffer_size: configuration.inputBufferSize, output_buffer_size: configuration.outputBufferSize)
+        let config = lzma_decompress_config(
+            input_buffer_size: .init(configuration.inputBufferSize),
+            output_buffer_size: .init(configuration.outputBufferSize)
+        )
 
-        let config = lzma_compress_config(buffer_config: buffer_config,
-                                          preset: configuration.preset)
-
-        let status = lzma_compress_stream(config, &readStream, &writeStream, &compressProgress)
+        let status = lzma_decompress_stream(config, &readStream, &writeStream, &compressProgress)
 
         guard status == STATUS_OK else {
-            throw XZError(status)
+            throw LzmaError(status)
         }
     }
 }

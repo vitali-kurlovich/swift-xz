@@ -4,7 +4,7 @@
 
 import clzma
 
-public enum XZError: Error, Sendable {
+public enum LzmaError: Error, Sendable {
     /**
      * Cannot allocate memory
      *
@@ -104,7 +104,7 @@ public enum XZError: Error, Sendable {
     case unknownError
 }
 
-extension XZError {
+extension LzmaError {
     init(_ status: lzma_ret_status) {
         switch status {
         case STATUS_MEM_ERROR:

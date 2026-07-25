@@ -6,8 +6,8 @@ import Foundation
 import Testing
 import XzCompression
 
-struct XZEncoderTests { func encode() throws {
-    let encoder = XZEncoder()
+struct LzmaEncoderTests { func encode() throws {
+    let encoder = LzmaEncoder()
 
     let data = TestData.expected
 
@@ -15,22 +15,22 @@ struct XZEncoderTests { func encode() throws {
 
     #expect(data != result)
 
-    let decoder = XZDecoder()
+    let decoder = LzmaDecoder()
     #expect(try decoder.decode(from: result) == data)
 }
 
-@Test("XZEncoder Error handling")
+@Test("Encoder error handling")
 func error() throws {
-    let encoder = XZEncoder()
+    let encoder = LzmaEncoder()
 
-    #expect(throws: XZError.writeError) {
+    #expect(throws: LzmaError.writeError) {
         try encoder.encode(from: TestData.expected) { _ in
             throw IOError.writeError
         }
     }
 }
 
-@Test("XZEncoder Encode to file")
+@Test("Encoder encode to file")
 func fileEncode() throws {
     // 1. Get the system temporary directory URL
     let tempDir = FileManager.default.temporaryDirectory
@@ -48,19 +48,19 @@ func fileEncode() throws {
     // 4. Write mock data to the temporary file
     try TestData.expected.write(to: fileURL, options: [.atomic])
 
-    let encoder = XZEncoder()
+    let encoder = LzmaEncoder()
 
     try encoder.encode(from: fileURL, writeToUrl: compessedURL)
 
-    let decoder = XZDecoder()
+    let decoder = LzmaDecoder()
 
     #expect(try decoder.decode(from: compessedURL) == TestData.expected)
 }
 
-@Test("XZEncoder Large dataset")
+@Test("Encoder earge dataset")
 func decodeLargeData() throws {
-    let encoder = XZEncoder()
-    let decoder = XZDecoder()
+    let encoder = LzmaEncoder()
+    let decoder = LzmaDecoder()
 
     let data = TestData.generate(1024 * 1024 * 10)
     #expect(data.count >= 1024 * 1024 * 10)
@@ -72,7 +72,7 @@ func decodeLargeData() throws {
     #expect(try decoder.decode(from: compressed) == data)
 }
 
-@Test("XZEncoder Compress Data to file")
+@Test("Encoder Compress Data to file")
 func decodeToFile() throws {
     // 1. Get the system temporary directory URL
     let tempDir = FileManager.default.temporaryDirectory
@@ -85,8 +85,8 @@ func decodeToFile() throws {
         try? FileManager.default.removeItem(at: fileURL)
     }
 
-    let encoder = XZEncoder()
-    let decoder = XZDecoder()
+    let encoder = LzmaEncoder()
+    let decoder = LzmaDecoder()
 
     let data = TestData.generate(1024 * 1024 * 10)
 

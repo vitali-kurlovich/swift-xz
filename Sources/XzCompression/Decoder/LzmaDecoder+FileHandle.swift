@@ -8,9 +8,9 @@ import class Foundation.FileManager
 import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
-                from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
+                from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError) -> Data
     {
         var result = Data()
         try decode(configuration: configuration,
@@ -21,7 +21,7 @@ public extension XZDecoder {
         return result
     }
 
-    func decode(configuration: DecoderConfiguration = .init(),
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data
     {
@@ -45,12 +45,12 @@ public extension XZDecoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileHandle: FileHandle,
                 write writeFunc: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
-        XZError
+        LzmaError
     ) {
         try decode(configuration: configuration,
                    read: { length in
@@ -58,7 +58,7 @@ public extension XZDecoder {
                    }, write: writeFunc, progress: progress)
     }
 
-    func decode(configuration: DecoderConfiguration = .init(),
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileUrl: URL,
                 write writeFunc: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -77,18 +77,18 @@ public extension XZDecoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
     {
         try decode(configuration: configuration, read: read, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func decode(configuration: DecoderConfiguration = .init(),
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -123,12 +123,12 @@ public extension XZDecoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from data: Data,
                 writeToFile writeHandle:
                 FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -141,7 +141,7 @@ public extension XZDecoder {
         }, progress: progress)
     }
 
-    func decode(configuration: DecoderConfiguration = .init(),
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from data: Data,
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -180,8 +180,8 @@ public extension XZDecoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileHandle: FileHandle,
                 writeToFile writeHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -191,7 +191,7 @@ public extension XZDecoder {
         }, progress: progress)
     }
 
-    func decode(configuration: DecoderConfiguration = .init(),
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileHandle: FileHandle,
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -204,8 +204,8 @@ public extension XZDecoder {
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-public extension XZDecoder {
-    func decode(configuration: DecoderConfiguration = .init(),
+public extension LzmaDecoder {
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileUrl: URL,
                 writeToFile writeHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -226,7 +226,7 @@ public extension XZDecoder {
         try readHandler.close()
     }
 
-    func decode(configuration: DecoderConfiguration = .init(),
+    func decode(configuration: LzmaDecoderConfiguration = .init(),
                 from fileUrl: URL,
                 writeToUrl fileWriteUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws

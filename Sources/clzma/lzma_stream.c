@@ -10,7 +10,12 @@ void lzma_buffer_config_init( lzma_buffer_config *config) {
     config->output_buffer_size = 8192;
 }
 
-lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm,  ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
+lzma_ret_status lzma_perform_stream(lzma_buffer_config config,
+                                    lzma_stream *strm,
+                                    ISeqInStream *inStream,
+                                    ISeqOutStream *outStream,
+                                    ICompressProgress *progress,
+                                    IStreamCancelation *cancelation) {
  
     lzma_ret_status status = STATUS_OK;
     
@@ -27,7 +32,8 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm
     bool isEof = false;
     
     while (true) {
-        // Refill input buffer if empty and not at EOF
+        
+        bool cancel = false;
         
         size_t inSize = config.input_buffer_size;
         
@@ -35,7 +41,15 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm
         lzma_ret ret = LZMA_OK;
         
         if (strm->avail_in == 0 && isEof == false) {
-            ISeqInStream_Read(inStream, (void *)in_buf, &inSize, &io_status);
+            
+            CheckStreamCancel(cancelation, &cancel)
+            
+            if (cancel == true) {
+                status = STATUS_CANCELED;
+                break;
+            }
+            
+            ISeqInStream_Read(inStream, (void *)in_buf, &inSize, &io_status)
             
             if (io_status != STATUS_IO_OK) {
                 status = STATUS_READ_ERROR;
@@ -50,12 +64,27 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm
             strm->next_in = in_buf;
             strm->avail_in = inSize;
         }
+        
+        CheckStreamCancel(cancelation, &cancel)
+        
+        if (cancel == true) {
+            status = STATUS_CANCELED;
+            break;
+        }
        
         // Run the decompressor
         ret = lzma_code(strm, action);
 
         // Process produced output, if any
         if (strm->avail_out < config.output_buffer_size) {
+            
+            CheckStreamCancel(cancelation, &cancel)
+            
+            if (cancel == true) {
+                status = STATUS_CANCELED;
+                break;
+            }
+            
             size_t write_size = config.output_buffer_size - strm->avail_out;
             size_t outSize = ISeqOutStream_Write(outStream, (void *)out_buf, write_size, &io_status);
             
@@ -75,6 +104,10 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm
             break;
         }
         
+        if (status == STATUS_CANCELED) {
+            break;
+        }
+        
         if (ret != LZMA_OK) {
             status = conv2ret_status(ret);
             break;
@@ -86,6 +119,7 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm
     Finalize(inStream);
     Finalize(outStream);
     Finalize(progress);
+    Finalize(cancelation);
     
     return status;
 }

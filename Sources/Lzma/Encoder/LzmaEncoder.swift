@@ -28,13 +28,14 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in
-                }) throws(LzmaError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
 
         let progressHandler = CompressProgressHandler(progressFunc: progress)
+        let cancelHandler = StreamCancelationHandler(cancel: cancel)
 
         var readStream = ISeqInStream(
             Read: readHandler.readStream,
@@ -53,12 +54,18 @@ public extension LzmaEncoder {
             context: progressHandler.context
         )
 
+        var caceletion = IStreamCancelation(
+            Cancelation: cancelHandler.cancelation,
+            Finalize: cancelHandler.finalize,
+            context: cancelHandler.context
+        )
+
         let buffer_config = lzma_buffer_config(input_buffer_size: configuration.inputBufferSize, output_buffer_size: configuration.outputBufferSize)
 
         let config = lzma_compress_config(buffer_config: buffer_config,
                                           preset: configuration.preset)
 
-        let status = lzma_compress_stream(config, &readStream, &writeStream, &compressProgress)
+        let status = lzma_compress_stream(config, &readStream, &writeStream, &compressProgress, &caceletion)
 
         guard status == STATUS_OK else {
             throw LzmaError(status)

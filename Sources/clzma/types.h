@@ -25,7 +25,7 @@ _C_IFACE_DECL (ISeqInStream)
     void (*Finalize)(ISeqInStreamPtr p);
     void *context;
 };
-#define ISeqInStream_Read(p, buf, size, status) (p)->Read(p, buf, size, status)
+#define ISeqInStream_Read(p, buf, size, status) (p)->Read(p, buf, size, status);
 
 
 _C_IFACE_DECL (ISeqOutStream)
@@ -36,7 +36,19 @@ _C_IFACE_DECL (ISeqOutStream)
   void (*Finalize)(ISeqOutStreamPtr p);
   void *context;
 };
-#define ISeqOutStream_Write(p, buf, size, status) (p)->Write(p, buf, size, status)
+#define ISeqOutStream_Write(p, buf, size, status) (p)->Write(p, buf, size, status);
+
+
+_C_IFACE_DECL (IStreamCancelation)
+{
+    void (*Cancelation)(IStreamCancelationPtr p, bool *cancel);
+    /* Returns: result. (result != SZ_OK) means break.
+       Value (UInt64)(Int64)-1 for size means unknown value. */
+    void (*Finalize)(IStreamCancelationPtr p);
+    void *context;
+};
+#define CheckStreamCancel(p, cancel) if (p != NULL) { (p)->Cancelation(p, cancel); }
+
 
 _C_IFACE_DECL (ICompressProgress)
 {
@@ -46,12 +58,7 @@ _C_IFACE_DECL (ICompressProgress)
     void (*Finalize)(ICompressProgressPtr p);
     void *context;
 };
-
 #define ICompressProgress_Progress(p, inSize, outSize) if (p != NULL) { (p)->Progress(p, inSize, outSize); }
-
-
-#define LZMA_READ_ERROR 20
-#define LZMA_WRITE_ERROR 21
 
 
 #endif

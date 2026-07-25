@@ -101,6 +101,8 @@ public enum LzmaError: Error, Sendable {
     case readError
     case writeError
 
+    case canceled
+
     case unknownError
 }
 
@@ -123,6 +125,8 @@ extension LzmaError {
             self = .readError
         case STATUS_WRITE_ERROR:
             self = .writeError
+        case STATUS_CANCELED:
+            self = .canceled
         default:
             self = .unknownError
         }

@@ -11,26 +11,33 @@ import struct Foundation.URL
 public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError) -> Data
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(LzmaError) -> Data
     {
         var result = Data()
-        try encode(configuration: configuration, from: fileHandle, write: { data in
-            result.append(data)
-        }, progress: progress)
+        try encode(configuration: configuration,
+                   from: fileHandle,
+                   write: { result.append($0) },
+                   progress: progress,
+                   cancel: cancel)
 
         return result
     }
 
     func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws -> Data
     {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         let data: Data
 
         do {
-            data = try encode(configuration: configuration, from: readHandler, progress: progress)
+            data = try encode(configuration: configuration,
+                              from: readHandler,
+                              progress: progress,
+                              cancel: cancel)
         } catch {
             try readHandler.close()
             throw error
@@ -47,23 +54,30 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 write writeFunc: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(
         LzmaError
     ) {
         try encode(configuration: configuration,
-                   read: { length in
-                       try fileHandle.read(upToCount: length)
-                   }, write: writeFunc, progress: progress)
+                   read: { try fileHandle.read(upToCount: $0) },
+                   write: writeFunc,
+                   progress: progress,
+                   cancel: cancel)
     }
 
     func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 write writeFunc: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
         do {
-            try encode(configuration: configuration, from: readHandler, write: writeFunc, progress: progress)
+            try encode(configuration: configuration,
+                       from: readHandler,
+                       write: writeFunc,
+                       progress: progress,
+                       cancel: cancel)
         } catch {
             try readHandler.close()
             throw error
@@ -78,19 +92,21 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
     {
         try encode(configuration: configuration,
                    read: read,
-                   write: { data in
-                       try writeHandle.write(contentsOf: data)
-                   }, progress: progress)
+                   write: { try writeHandle.write(contentsOf: $0) },
+                   progress: progress,
+                   cancel: cancel)
     }
 
     func encode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToUrl fileUrl: URL,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         let path: String
 
@@ -110,7 +126,8 @@ public extension LzmaEncoder {
             try encode(configuration: configuration,
                        read: read,
                        writeToFile: writeHandler,
-                       progress: progress)
+                       progress: progress,
+                       cancel: cancel)
 
         } catch {
             try writeHandler.close()
@@ -126,7 +143,8 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from data: Data,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -134,15 +152,18 @@ public extension LzmaEncoder {
             data.count
         )
 
-        try encode(configuration: configuration, from: data, write: { data in
-            try writeHandle.write(contentsOf: data)
-        }, progress: progress)
+        try encode(configuration: configuration,
+                   from: data,
+                   write: { try writeHandle.write(contentsOf: $0) },
+                   progress: progress,
+                   cancel: cancel)
     }
 
     func encode(configuration: Configuration = .init(),
                 from data: Data,
                 writeToUrl fileUrl: URL,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -168,7 +189,8 @@ public extension LzmaEncoder {
                 configuration: configuration,
                 from: data,
                 writeToFile: writeHandler,
-                progress: progress
+                progress: progress,
+                cancel: cancel
             )
         } catch {
             try writeHandler.close()
@@ -184,24 +206,27 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         try encode(configuration: configuration,
                    from: fileHandle,
-                   write: { data in
-                       try writeHandle.write(contentsOf: data)
-                   }, progress: progress)
+                   write: { try writeHandle.write(contentsOf: $0) },
+                   progress: progress,
+                   cancel: cancel)
     }
 
     func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 writeToUrl fileUrl: URL,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         try encode(configuration: configuration,
-                   read: { length in
-                       try fileHandle.read(upToCount: length)
-                   }, writeToUrl: fileUrl, progress: progress)
+                   read: { try fileHandle.read(upToCount: $0) },
+                   writeToUrl: fileUrl,
+                   progress: progress,
+                   cancel: cancel)
     }
 }
 
@@ -210,7 +235,8 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
@@ -218,7 +244,8 @@ public extension LzmaEncoder {
             try encode(configuration: configuration,
                        from: readHandler,
                        writeToFile: writeHandle,
-                       progress: progress)
+                       progress: progress,
+                       cancel: cancel)
 
         } catch {
             try readHandler.close()
@@ -231,7 +258,8 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 writeToUrl fileWriteUrl: URL,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws
     {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
@@ -239,7 +267,8 @@ public extension LzmaEncoder {
             try encode(configuration: configuration,
                        from: readHandler,
                        writeToUrl: fileWriteUrl,
-                       progress: progress)
+                       progress: progress,
+                       cancel: cancel)
 
         } catch {
             try readHandler.close()

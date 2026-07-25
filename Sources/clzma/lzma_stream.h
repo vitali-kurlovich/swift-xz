@@ -15,6 +15,11 @@ typedef struct {
 
 void lzma_buffer_config_init( lzma_buffer_config *config);
 
-lzma_ret_status lzma_perform_stream(lzma_buffer_config config, lzma_stream *strm,  ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress);
+lzma_ret_status lzma_perform_stream(lzma_buffer_config config,
+                                    lzma_stream *strm,
+                                    ISeqInStream *inStream,
+                                    ISeqOutStream *outStream,
+                                    ICompressProgress *progress,
+                                    IStreamCancelation *cancelation);
 
 #endif

@@ -6,7 +6,7 @@
 import clzma
 import struct Foundation.Data
 
-typealias WriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?, UnsafeRawPointer?, Int, UnsafeMutablePointer<lzma_io_status>?) -> Int
+typealias CWriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?, UnsafeRawPointer?, Int, UnsafeMutablePointer<lzma_io_status>?) -> Int
 
 typealias FinalizeWriteStream = @convention(c) (UnsafePointer<ISeqOutStream_>?) -> Void
 
@@ -40,7 +40,7 @@ extension WriteHandler {
     }
 
     @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
-    var writeStream: WriteStream {
+    var writeStream: CWriteStream {
         return { ptr, buff, size, status in
             guard let ptr, let buff, let status else {
                 status?.pointee = STATUS_IO_WRITE_ERROR

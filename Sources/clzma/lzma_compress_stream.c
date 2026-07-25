@@ -15,7 +15,11 @@ void lzma_decoder_config_init(lzma_compress_config *config) {
     config->preset = 6;
 }
 
-lzma_ret_status lzma_compress_stream(lzma_compress_config config, ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
+lzma_ret_status lzma_compress_stream(lzma_compress_config config,
+                                     ISeqInStream *inStream,
+                                     ISeqOutStream *outStream,
+                                     ICompressProgress *progress,
+                                     IStreamCancelation *cancelation) {
     
     // Initialize the lzma_stream structure
     lzma_stream strm = LZMA_STREAM_INIT;
@@ -29,14 +33,11 @@ lzma_ret_status lzma_compress_stream(lzma_compress_config config, ISeqInStream *
         Finalize(inStream);
         Finalize(outStream);
         Finalize(progress);
+        Finalize(cancelation);
         
         return conv2ret_status(ret);
     }
     
-    return lzma_perform_stream(config.buffer_config,
-                               &strm,
-                               inStream,
-                               outStream,
-                               progress);
+    return lzma_perform_stream(config.buffer_config, &strm, inStream, outStream, progress, cancelation);
 }
 

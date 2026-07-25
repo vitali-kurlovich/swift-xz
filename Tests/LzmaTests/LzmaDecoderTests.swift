@@ -15,6 +15,14 @@ struct LzmaDecoderTests {
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
     }
 
+    @Test("Decoder cancel handling")
+    func cancel() throws {
+        let decoder = LzmaDecoder()
+        #expect(throws: LzmaError.canceled) {
+            try decoder.decode(from: TestData.compressed, cancel: { true })
+        }
+    }
+
     @Test("Decoder error handling")
     func error() throws {
         let decoder = LzmaDecoder()

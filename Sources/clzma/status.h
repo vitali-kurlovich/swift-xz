@@ -44,6 +44,8 @@ typedef enum {
        
     STATUS_READ_ERROR         = 21,
     STATUS_WRITE_ERROR        = 22,
+    
+    STATUS_CANCELED           = 99,
   
     STATUS_INTERNAL = 100
     

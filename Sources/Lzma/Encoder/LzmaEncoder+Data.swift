@@ -8,7 +8,9 @@ import struct Foundation.Data
 public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from data: Data,
-                write: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
+                write: @escaping (Data) throws -> Void,
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -32,7 +34,10 @@ public extension LzmaEncoder {
 
                        return data[range]
 
-                   }, write: write, progress: progress)
+                   },
+                   write: write,
+                   progress: progress,
+                   cancel: cancel)
     }
 }
 
@@ -40,7 +45,8 @@ public extension LzmaEncoder {
 public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from data: Data,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError) -> Data
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws(LzmaError) -> Data
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -50,9 +56,10 @@ public extension LzmaEncoder {
 
         var result = Data()
         try encode(configuration: configuration,
-                   from: data, write: { data in
-                       result.append(data)
-                   }, progress: progress)
+                   from: data,
+                   write: { result.append($0) },
+                   progress: progress,
+                   cancel: cancel)
         return result
     }
 }

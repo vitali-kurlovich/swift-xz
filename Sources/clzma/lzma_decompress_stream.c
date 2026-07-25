@@ -40,41 +40,39 @@ lzma_ret_status lzma_decompress_stream(ISeqInStream *inStream, ISeqOutStream *ou
     strm.next_in = NULL;
     strm.avail_in = 0;
     strm.next_out = out_buf;
-    strm.avail_out = sizeof(out_buf);
+    strm.avail_out = OUT_BUF_MAX;
 
+    bool isEof = false;
+    
     while (true) {
         // Refill input buffer if empty and not at EOF
-        size_t inSize = sizeof(in_buf);
+        
+        size_t inSize = IN_BUF_MAX;
         
         lzma_io_status io_status = STATUS_IO_OK;
-        
-        ISeqInStream_Read(inStream, (void *)in_buf, &inSize, &io_status);
-        
-        if (io_status != STATUS_IO_OK) {
-            status = STATUS_READ_ERROR;
-            break;
-        }
-        
-        if (inSize == 0) {
-            ret = LZMA_STREAM_END;
-            break;
-        }
-        
-        // If we reached the end of the input stream/file, switch action to LZMA_FINISH
-        if (inSize < sizeof(in_buf)) {
-            action = LZMA_FINISH;
-        }
-        
-        if (strm.avail_in == 0) {
+        if (strm.avail_in == 0 && isEof == false) {
+            ISeqInStream_Read(inStream, (void *)in_buf, &inSize, &io_status);
+            
+            if (io_status != STATUS_IO_OK) {
+                status = STATUS_READ_ERROR;
+                break;
+            }
+            
+            if (inSize < IN_BUF_MAX) {
+                isEof = true;
+                action = LZMA_FINISH;
+            }
+            
             strm.next_in = in_buf;
             strm.avail_in = inSize;
         }
-
+        
+       
         // Run the decompressor
         ret = lzma_code(&strm, action);
 
         // Process produced output, if any
-        if (strm.avail_out > 0 || ret == LZMA_STREAM_END) {
+        if (strm.avail_out < sizeof(out_buf)) {
             size_t write_size = sizeof(out_buf) - strm.avail_out;
             size_t outSize = ISeqOutStream_Write(outStream, (void *)out_buf, write_size, &io_status );
             

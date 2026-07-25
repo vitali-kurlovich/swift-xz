@@ -59,7 +59,7 @@ struct XZEncoderTests {
         #expect(try decoder.decode(from: compessedURL) == TestData.expected)
     }
 
-    @Test("XZEncoder Compress Data to file")
+    @Test("XZEncoder Large dataset")
     func decodeLargeData() throws {
         let encoder = XZEncoder()
         let decoder = XZDecoder()

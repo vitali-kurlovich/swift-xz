@@ -6,9 +6,9 @@ import struct Foundation.Data
 
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from data: Data,
-                write: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+                write: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -38,9 +38,9 @@ public extension LzmaEncoder {
 
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from data: Data,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError) -> Data
     {
         var configuration = configuration
         configuration.inputBufferSize = min(

@@ -9,9 +9,9 @@ import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError) -> Data
     {
         var result = Data()
         try encode(configuration: configuration, from: fileHandle, write: { data in
@@ -21,7 +21,7 @@ public extension LzmaEncoder {
         return result
     }
 
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data
     {
@@ -44,11 +44,11 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 write writeFunc: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
-        XZError
+        LzmaError
     ) {
         try encode(configuration: configuration,
                    read: { length in
@@ -56,7 +56,7 @@ public extension LzmaEncoder {
                    }, write: writeFunc, progress: progress)
     }
 
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 write writeFunc: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -75,10 +75,10 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
     {
         try encode(configuration: configuration,
                    read: read,
@@ -87,7 +87,7 @@ public extension LzmaEncoder {
                    }, progress: progress)
     }
 
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -123,10 +123,10 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from data: Data,
                 writeToFile writeHandle: FileHandle,
-                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -139,7 +139,7 @@ public extension LzmaEncoder {
         }, progress: progress)
     }
 
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from data: Data,
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -181,7 +181,7 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 writeToFile writeHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -193,7 +193,7 @@ public extension LzmaEncoder {
                    }, progress: progress)
     }
 
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -207,7 +207,7 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 writeToFile writeHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
@@ -228,7 +228,7 @@ public extension LzmaEncoder {
         try readHandler.close()
     }
 
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 from fileUrl: URL,
                 writeToUrl fileWriteUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws

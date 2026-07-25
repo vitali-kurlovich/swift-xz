@@ -5,23 +5,25 @@
 import clzma
 import struct Foundation.Data
 
-public struct LzmaDecoderConfiguration: Equatable, Sendable {
-    public var inputBufferSize: Int
-    public var outputBufferSize: Int
-
-    public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192) {
-        self.inputBufferSize = inputBufferSize
-        self.outputBufferSize = outputBufferSize
-    }
-}
-
 public struct LzmaDecoder: Sendable {
     public init() {}
 }
 
+public extension LzmaDecoder {
+    struct Configuration: Equatable, Sendable {
+        public var inputBufferSize: Int
+        public var outputBufferSize: Int
+
+        public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192) {
+            self.inputBufferSize = inputBufferSize
+            self.outputBufferSize = outputBufferSize
+        }
+    }
+}
+
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension LzmaDecoder {
-    func decode(configuration: LzmaDecoderConfiguration = .init(),
+    func decode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(LzmaError)

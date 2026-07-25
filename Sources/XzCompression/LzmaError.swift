@@ -33,7 +33,7 @@ public enum LzmaError: Error, Sendable {
      */
     case memoryLimitError
 
-    /* 
+    /*
      * File format not recognized
      *
      * The decoder did not recognize the input as supported file
@@ -44,7 +44,7 @@ public enum LzmaError: Error, Sendable {
 
     case formatError
 
-    /* 
+    /*
      *  Invalid or unsupported options
      *
      * Invalid or unsupported options, for example
@@ -57,7 +57,7 @@ public enum LzmaError: Error, Sendable {
 
     case optionsError
 
-    /* 
+    /*
      * Data is corrupt
      *
      * The usage of this return value is different in encoders
@@ -77,7 +77,7 @@ public enum LzmaError: Error, Sendable {
 
     case dataError
 
-    /* 
+    /*
      *  Programming error
      *
      * This indicates that the arguments given to the function are

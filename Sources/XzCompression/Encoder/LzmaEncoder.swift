@@ -5,29 +5,31 @@
 import clzma
 import struct Foundation.Data
 
-public struct EncoderConfiguration: Equatable, Sendable {
-    public var inputBufferSize: Int
-    public var outputBufferSize: Int
-    public var preset: UInt32
-
-    public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192, preset: UInt32 = 6) {
-        self.inputBufferSize = inputBufferSize
-        self.outputBufferSize = outputBufferSize
-        self.preset = min(max(0, preset), 9)
-    }
-}
-
 public struct LzmaEncoder: Sendable {
     public init() {}
 }
 
+public extension LzmaEncoder {
+    struct Configuration: Equatable, Sendable {
+        public var inputBufferSize: Int
+        public var outputBufferSize: Int
+        public var preset: UInt32
+
+        public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192, preset: UInt32 = 6) {
+            self.inputBufferSize = inputBufferSize
+            self.outputBufferSize = outputBufferSize
+            self.preset = min(max(0, preset), 9)
+        }
+    }
+}
+
 @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
 public extension LzmaEncoder {
-    func encode(configuration: EncoderConfiguration = .init(),
+    func encode(configuration: Configuration = .init(),
                 read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in
-                }) throws(XZError)
+                }) throws(LzmaError)
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
@@ -59,7 +61,7 @@ public extension LzmaEncoder {
         let status = lzma_compress_stream(config, &readStream, &writeStream, &compressProgress)
 
         guard status == STATUS_OK else {
-            throw XZError(status)
+            throw LzmaError(status)
         }
     }
 }

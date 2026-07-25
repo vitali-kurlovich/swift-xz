@@ -61,4 +61,18 @@ public extension LzmaDecoder {
                    cancel: cancel)
         return result
     }
+
+    func decode(configuration: Configuration = .init(),
+                read: @escaping (Int) throws -> Data?,
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws -> Data
+    {
+        var result = Data()
+        try decode(configuration: configuration,
+                   read: read,
+                   write: { result.append($0) },
+                   progress: progress,
+                   cancel: cancel)
+        return result
+    }
 }

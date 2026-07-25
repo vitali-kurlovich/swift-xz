@@ -8,14 +8,48 @@ enum IOError: Error {
 }
 
 struct LzmaDecoderTests {
-    @Test("Decoder decode data")
+    @Test("Decode small data")
     func decode() throws {
         let decoder = LzmaDecoder()
 
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
     }
 
-    @Test("Decoder cancel handling")
+    @Test("Decode with multiple reads")
+    func decodeMultipleReads() throws {
+        let decoder = LzmaDecoder()
+
+        let configuration = LzmaDecoder.Configuration(inputBufferSize: 512)
+        let data = TestData.compressed
+        var position = data.startIndex
+        let size = data.count
+
+        var readCount = 0
+
+        let result = try decoder.decode(
+            configuration: configuration,
+            read: { length in
+                readCount += 1
+
+                let rangeLength = Swift.min(length, size - position)
+
+                if rangeLength == 0 {
+                    return nil
+                }
+
+                let range = position ..< position + rangeLength
+                position += rangeLength
+
+                return data[range]
+            }
+        )
+
+        #expect(readCount == 2)
+
+        #expect(result == TestData.expected)
+    }
+
+    @Test("Cancel handling")
     func cancel() throws {
         let decoder = LzmaDecoder()
         #expect(throws: LzmaError.canceled) {
@@ -23,7 +57,7 @@ struct LzmaDecoderTests {
         }
     }
 
-    @Test("Decoder error handling")
+    @Test("Error handling")
     func error() throws {
         let decoder = LzmaDecoder()
 
@@ -42,7 +76,7 @@ struct LzmaDecoderTests {
         }
     }
 
-    @Test("Decoder decompress to file")
+    @Test("Decode to file")
     func fileDecode() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -71,7 +105,7 @@ struct LzmaDecoderTests {
         #expect(try decoder.decode(from: fileURL) == TestData.expected)
     }
 
-    @Test("Decoder decompress data to file")
+    @Test("Decode data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory

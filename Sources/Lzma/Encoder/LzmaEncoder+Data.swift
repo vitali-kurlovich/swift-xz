@@ -62,4 +62,18 @@ public extension LzmaEncoder {
                    cancel: cancel)
         return result
     }
+
+    func encode(configuration: Configuration = .init(),
+                read: @escaping (Int) throws -> Data?,
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false }) throws -> Data
+    {
+        var result = Data()
+        try encode(configuration: configuration,
+                   read: read,
+                   write: { result.append($0) },
+                   progress: progress,
+                   cancel: cancel)
+        return result
+    }
 }

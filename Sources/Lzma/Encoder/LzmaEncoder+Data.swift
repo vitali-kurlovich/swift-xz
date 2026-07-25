@@ -6,23 +6,15 @@ import struct Foundation.Data
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaEncoder {
-    func encode(configuration: Configuration = .init(),
-                from data: Data,
+    func encode(from data: Data,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws
     {
-        var configuration = configuration
-        configuration.inputBufferSize = min(
-            configuration.inputBufferSize,
-            data.count
-        )
-
         var position = data.startIndex
         let size = data.count
 
-        try encode(configuration: configuration,
-                   read: { length in
+        try encode(read: { length in
                        let rangeLength = Swift.min(length, size - position)
 
                        if rangeLength == 0 {
@@ -33,7 +25,6 @@ public extension LzmaEncoder {
                        position += rangeLength
 
                        return data[range]
-
                    },
                    write: write,
                    progress: progress,
@@ -43,34 +34,24 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaEncoder {
-    func encode(configuration: Configuration = .init(),
-                from data: Data,
+    func encode(from data: Data,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws -> Data
     {
-        var configuration = configuration
-        configuration.inputBufferSize = min(
-            configuration.inputBufferSize,
-            data.count
-        )
-
         var result = Data()
-        try encode(configuration: configuration,
-                   from: data,
+        try encode(from: data,
                    write: { result.append($0) },
                    progress: progress,
                    cancel: cancel)
         return result
     }
 
-    func encode(configuration: Configuration = .init(),
-                read: @escaping (Int) throws -> Data?,
+    func encode(read: @escaping (Int) throws -> Data?,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws -> Data
     {
         var result = Data()
-        try encode(configuration: configuration,
-                   read: read,
+        try encode(read: read,
                    write: { result.append($0) },
                    progress: progress,
                    cancel: cancel)

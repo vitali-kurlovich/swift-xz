@@ -17,9 +17,9 @@ struct LzmaDecoderTests {
 
     @Test("Decode with multiple reads")
     func decodeMultipleReads() throws {
-        let decoder = LzmaDecoder()
-
         let configuration = LzmaDecoder.Configuration(inputBufferSize: 512)
+        let decoder = LzmaDecoder(configuration: configuration)
+
         let data = TestData.compressed
         var position = data.startIndex
         let size = data.count
@@ -27,7 +27,6 @@ struct LzmaDecoderTests {
         var readCount = 0
 
         let result = try decoder.decode(
-            configuration: configuration,
             read: { length in
                 readCount += 1
 
@@ -59,19 +58,18 @@ struct LzmaDecoderTests {
 
     @Test("Progress")
     func progress() throws {
-        let decoder = LzmaDecoder()
-
         let configuration = LzmaDecoder.Configuration(
             inputBufferSize: 512,
             outputBufferSize: 512
         )
 
+        let decoder = LzmaDecoder(configuration: configuration)
+
         let data = TestData.compressed
 
         var progress: [[Int]] = []
 
-        _ = try decoder.decode(configuration: configuration,
-                               from: data,
+        _ = try decoder.decode(from: data,
                                progress: { inSize, outSize in
                                    progress.append([inSize, outSize])
                                })

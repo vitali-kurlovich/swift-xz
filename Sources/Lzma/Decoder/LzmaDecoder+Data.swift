@@ -6,23 +6,15 @@ import struct Foundation.Data
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
-    func decode(configuration: Configuration = .init(),
-                from data: Data,
+    func decode(from data: Data,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws
     {
-        var configuration = configuration
-        configuration.inputBufferSize = min(
-            configuration.inputBufferSize,
-            data.count
-        )
-
         var position = data.startIndex
         let size = data.count
 
-        try decode(configuration: configuration,
-                   read: { length in
+        try decode(read: { length in
                        let rangeLength = Swift.min(length, size - position)
 
                        if rangeLength == 0 {
@@ -34,7 +26,8 @@ public extension LzmaDecoder {
 
                        return data[range]
 
-                   }, write: write,
+                   },
+                   write: write,
                    progress: progress,
                    cancel: cancel)
     }
@@ -42,34 +35,24 @@ public extension LzmaDecoder {
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
-    func decode(configuration: Configuration = .init(),
-                from data: Data,
+    func decode(from data: Data,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws -> Data
     {
-        var configuration = configuration
-        configuration.inputBufferSize = min(
-            configuration.inputBufferSize,
-            data.count
-        )
-
         var result = Data()
-        try decode(configuration: configuration,
-                   from: data,
+        try decode(from: data,
                    write: { result.append($0) },
                    progress: progress,
                    cancel: cancel)
         return result
     }
 
-    func decode(configuration: Configuration = .init(),
-                read: @escaping (Int) throws -> Data?,
+    func decode(read: @escaping (Int) throws -> Data?,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws -> Data
     {
         var result = Data()
-        try decode(configuration: configuration,
-                   read: read,
+        try decode(read: read,
                    write: { result.append($0) },
                    progress: progress,
                    cancel: cancel)

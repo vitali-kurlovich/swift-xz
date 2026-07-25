@@ -21,9 +21,8 @@ struct LzmaEncoderTests { func encode() throws {
 
 @Test("Encode with multiple reads")
 func encodeMultipleReads() throws {
-    let encoder = LzmaEncoder()
-
     let configuration = LzmaEncoder.Configuration(inputBufferSize: 512)
+    let encoder = LzmaEncoder(configuration: configuration)
     let data = TestData.expected
     var position = data.startIndex
     let size = data.count
@@ -31,7 +30,6 @@ func encodeMultipleReads() throws {
     var readCount = 0
 
     let result = try encoder.encode(
-        configuration: configuration,
         read: { length in
             readCount += 1
 
@@ -68,19 +66,18 @@ func cancel() throws {
 
 @Test("Progress")
 func progress() throws {
-    let encoder = LzmaEncoder()
-
     let configuration = LzmaEncoder.Configuration(
         inputBufferSize: 512,
         outputBufferSize: 512
     )
 
+    let encoder = LzmaEncoder(configuration: configuration)
+
     let data = TestData.expected
 
     var progress: [[Int]] = []
 
-    _ = try encoder.encode(configuration: configuration,
-                           from: data,
+    _ = try encoder.encode(from: data,
                            progress: { inSize, outSize in
                                progress.append([inSize, outSize])
                            })

@@ -11,7 +11,10 @@ import struct Foundation.Data
 #endif
 
 public struct LzmaEncoder: Sendable {
-    public init() {}
+    public var configuration: Configuration
+    public init(configuration: Configuration = .init()) {
+        self.configuration = configuration
+    }
 }
 
 public extension LzmaEncoder {
@@ -30,8 +33,7 @@ public extension LzmaEncoder {
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaEncoder {
-    func encode(configuration: Configuration = .init(),
-                read: @escaping (Int) throws -> Data?,
+    func encode(read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws

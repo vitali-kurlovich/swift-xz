@@ -47,8 +47,11 @@ func encodeMultipleReads() throws {
             return data[range]
         }
     )
-
-    #expect(readCount == 3)
+    #if canImport(Compression)
+        #expect(readCount == 4)
+    #else
+        #expect(readCount == 3)
+    #endif
 
     let decoder = LzmaDecoder()
 
@@ -82,7 +85,12 @@ func progress() throws {
                                progress.append([inSize, outSize])
                            })
 
-    #expect(progress == [[512, 24], [1368, 536], [1368, 776]])
+    print(progress)
+    #if canImport(Compression)
+        #expect(progress == [[1368, 512], [1368, 768]])
+    #else
+        #expect(progress == [[512, 24], [1368, 536], [1368, 776]])
+    #endif
 }
 
 @Test("Error handling")

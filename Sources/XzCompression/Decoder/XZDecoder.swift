@@ -6,10 +6,10 @@ import clzma
 import struct Foundation.Data
 
 public struct DecoderConfiguration: Equatable, Sendable {
-    public var inputBufferSize: UInt32
-    public var outputBufferSize: UInt32
+    public var inputBufferSize: Int
+    public var outputBufferSize: Int
 
-    public init(inputBufferSize: UInt32 = 8192, outputBufferSize: UInt32 = 8192) {
+    public init(inputBufferSize: Int = 8192, outputBufferSize: Int = 8192) {
         self.inputBufferSize = inputBufferSize
         self.outputBufferSize = outputBufferSize
     }

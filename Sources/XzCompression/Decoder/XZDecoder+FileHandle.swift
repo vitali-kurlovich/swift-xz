@@ -130,6 +130,12 @@ public extension XZDecoder {
                 FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
     {
+        var configuration = configuration
+        configuration.inputBufferSize = min(
+            configuration.inputBufferSize,
+            data.count
+        )
+
         try decode(configuration: configuration, from: data, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
@@ -140,6 +146,12 @@ public extension XZDecoder {
                 writeToUrl fileUrl: URL,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
     {
+        var configuration = configuration
+        configuration.inputBufferSize = min(
+            configuration.inputBufferSize,
+            data.count
+        )
+
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -186,8 +198,8 @@ public extension XZDecoder {
     {
         try decode(configuration: configuration,
                    read: { length in
-            try fileHandle.read(upToCount: length)
-        }, writeToUrl: fileUrl, progress: progress)
+                       try fileHandle.read(upToCount: length)
+                   }, writeToUrl: fileUrl, progress: progress)
     }
 }
 

@@ -11,6 +11,12 @@ public extension XZDecoder {
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
     {
+        var configuration = configuration
+        configuration.inputBufferSize = min(
+            configuration.inputBufferSize,
+            data.count
+        )
+
         var position = data.startIndex
         let size = data.count
 
@@ -37,6 +43,12 @@ public extension XZDecoder {
     func decode(configuration: DecoderConfiguration = .init(),
                 from data: Data, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
     {
+        var configuration = configuration
+        configuration.inputBufferSize = min(
+            configuration.inputBufferSize,
+            data.count
+        )
+
         var result = Data()
         try decode(configuration: configuration,
                    from: data, write: { data in

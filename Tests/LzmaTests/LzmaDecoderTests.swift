@@ -57,6 +57,28 @@ struct LzmaDecoderTests {
         }
     }
 
+    @Test("Progress")
+    func progress() throws {
+        let decoder = LzmaDecoder()
+
+        let configuration = LzmaDecoder.Configuration(
+            inputBufferSize: 512,
+            outputBufferSize: 512
+        )
+
+        let data = TestData.compressed
+
+        var progress: [[Int]] = []
+
+        _ = try decoder.decode(configuration: configuration,
+                               from: data,
+                               progress: { inSize, outSize in
+                                   progress.append([inSize, outSize])
+                               })
+
+        #expect(progress == [[512, 512], [512, 815], [768, 1327], [768, 1368]])
+    }
+
     @Test("Error handling")
     func error() throws {
         let decoder = LzmaDecoder()

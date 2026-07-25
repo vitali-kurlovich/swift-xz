@@ -63,6 +63,28 @@ func cancel() throws {
     }
 }
 
+@Test("Progress")
+func progress() throws {
+    let encoder = LzmaEncoder()
+
+    let configuration = LzmaEncoder.Configuration(
+        inputBufferSize: 512,
+        outputBufferSize: 512
+    )
+
+    let data = TestData.expected
+
+    var progress: [[Int]] = []
+
+    _ = try encoder.encode(configuration: configuration,
+                           from: data,
+                           progress: { inSize, outSize in
+                               progress.append([inSize, outSize])
+                           })
+
+    #expect(progress == [[512, 24], [1368, 536], [1368, 776]])
+}
+
 @Test("Error handling")
 func error() throws {
     let encoder = LzmaEncoder()

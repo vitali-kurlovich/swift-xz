@@ -14,7 +14,7 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config,
                                     lzma_stream *strm,
                                     ISeqInStream *inStream,
                                     ISeqOutStream *outStream,
-                                    ICompressProgress *progress,
+                                    IStreamProgress *progress,
                                     IStreamCancelation *cancelation) {
  
     lzma_ret_status status = STATUS_OK;
@@ -30,6 +30,9 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config,
     lzma_action action = LZMA_RUN;
     
     bool isEof = false;
+    
+    UInt64 inputSize = 0;
+    UInt64 outputSize = 0;
     
     while (true) {
         
@@ -50,6 +53,8 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config,
             }
             
             ISeqInStream_Read(inStream, (void *)in_buf, &inSize, &io_status)
+            
+            inputSize += inSize;
             
             if (io_status != STATUS_IO_OK) {
                 status = STATUS_READ_ERROR;
@@ -87,6 +92,10 @@ lzma_ret_status lzma_perform_stream(lzma_buffer_config config,
             
             size_t write_size = config.output_buffer_size - strm->avail_out;
             size_t outSize = ISeqOutStream_Write(outStream, (void *)out_buf, write_size, &io_status);
+            
+            outputSize += outSize;
+            
+            ICompress_Progress(progress, inputSize, outputSize)
             
             if (io_status != STATUS_IO_OK) {
                 status = STATUS_WRITE_ERROR;

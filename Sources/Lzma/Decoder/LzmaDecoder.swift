@@ -32,7 +32,7 @@ public extension LzmaDecoder {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)
 
-        let progressHandler = CompressProgressHandler(progressFunc: progress)
+        let progressHandler = StreamProgressHandler(progressFunc: progress)
         let cancelHandler = StreamCancelationHandler(cancel: cancel)
 
         var readStream = ISeqInStream(
@@ -46,8 +46,8 @@ public extension LzmaDecoder {
             context: writeHandler.context
         )
 
-        var compressProgress = ICompressProgress(
-            Progress: progressHandler.compressProgress,
+        var streamProgress = IStreamProgress(
+            Progress: progressHandler.progress,
             Finalize: progressHandler.finalize,
             context: progressHandler.context
         )
@@ -63,7 +63,7 @@ public extension LzmaDecoder {
             output_buffer_size: .init(configuration.outputBufferSize)
         )
 
-        let status = lzma_decompress_stream(config, &readStream, &writeStream, &compressProgress, &caceletion)
+        let status = lzma_decompress_stream(config, &readStream, &writeStream, &streamProgress, &caceletion)
 
         guard status == STATUS_OK else {
             throw LzmaError(status)

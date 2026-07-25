@@ -50,15 +50,15 @@ _C_IFACE_DECL (IStreamCancelation)
 #define CheckStreamCancel(p, cancel) if (p != NULL) { (p)->Cancelation(p, cancel); }
 
 
-_C_IFACE_DECL (ICompressProgress)
+_C_IFACE_DECL (IStreamProgress)
 {
-    void (*Progress)(ICompressProgressPtr p, UInt64 inSize, UInt64 outSize);
+    void (*Progress)(IStreamProgressPtr p, UInt64 inSize, UInt64 outSize);
     /* Returns: result. (result != SZ_OK) means break.
        Value (UInt64)(Int64)-1 for size means unknown value. */
-    void (*Finalize)(ICompressProgressPtr p);
+    void (*Finalize)(IStreamProgressPtr p);
     void *context;
 };
-#define ICompressProgress_Progress(p, inSize, outSize) if (p != NULL) { (p)->Progress(p, inSize, outSize); }
+#define ICompress_Progress(p, inSize, outSize) if (p != NULL) { (p)->Progress(p, inSize, outSize); }
 
 
 #endif

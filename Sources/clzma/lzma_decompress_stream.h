@@ -17,7 +17,7 @@ void lzma_encoder_config_init( lzma_decompress_config *config);
 lzma_ret_status lzma_decompress_stream(lzma_decompress_config config,
                                        ISeqInStream *inStream,
                                        ISeqOutStream *outStream,
-                                       ICompressProgress *progress,
+                                       IStreamProgress *progress,
                                        IStreamCancelation *cancelation);
 
 #endif

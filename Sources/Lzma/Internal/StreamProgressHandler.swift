@@ -4,15 +4,15 @@
 
 import clzma
 
-typealias CompressProgress = @convention(c) (
-    UnsafePointer<ICompressProgress_>?,
+typealias CStreamProgress = @convention(c) (
+    UnsafePointer<IStreamProgress_>?,
     UInt64,
     UInt64
 ) -> Void
 
-typealias FinalizeCompressProgress = @convention(c) (UnsafePointer<ICompressProgress>?) -> Void
+typealias FinalizeCompressProgress = @convention(c) (UnsafePointer<IStreamProgress>?) -> Void
 
-final class CompressProgressHandler: @unchecked Sendable {
+final class StreamProgressHandler: @unchecked Sendable {
     private let progressFunc: (Int, Int) -> Void
 
     init(progressFunc: @escaping (Int, Int) -> Void) {
@@ -25,7 +25,7 @@ final class CompressProgressHandler: @unchecked Sendable {
     }
 }
 
-extension CompressProgressHandler {
+extension StreamProgressHandler {
     var context: UnsafeMutableRawPointer {
         UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
     }
@@ -36,19 +36,19 @@ extension CompressProgressHandler {
                 return
             }
 
-            Unmanaged<CompressProgressHandler>
+            Unmanaged<StreamProgressHandler>
                 .fromOpaque(ptr.pointee.context)
                 .release()
         }
     }
 
-    var compressProgress: CompressProgress {
+    var progress: CStreamProgress {
         return { ptr, inSize, outSize in
             guard let ptr else {
                 return
             }
 
-            let handler = Unmanaged<CompressProgressHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
+            let handler = Unmanaged<StreamProgressHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
             handler.progress(inSize, outSize)
         }
     }

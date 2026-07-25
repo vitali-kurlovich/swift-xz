@@ -17,7 +17,7 @@ void lzma_encoder_config_init(lzma_decompress_config *config) {
 lzma_ret_status lzma_decompress_stream(lzma_decompress_config config,
                                        ISeqInStream *inStream,
                                        ISeqOutStream *outStream,
-                                       ICompressProgress *progress,
+                                       IStreamProgress *progress,
                                        IStreamCancelation *cancelation) {
     
     // Initialize the lzma_stream structure
@@ -30,10 +30,10 @@ lzma_ret_status lzma_decompress_stream(lzma_decompress_config config,
     lzma_ret ret = lzma_stream_decoder(&strm, UINT64_MAX, LZMA_CONCATENATED);
     if (ret != LZMA_OK) {
         
-        Finalize(inStream);
-        Finalize(outStream);
-        Finalize(progress);
-        Finalize(cancelation);
+        Finalize(inStream)
+        Finalize(outStream)
+        Finalize(progress)
+        Finalize(cancelation)
         
         return conv2ret_status(ret);
     }

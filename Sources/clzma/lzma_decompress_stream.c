@@ -10,10 +10,13 @@
 #include <stdbool.h>
 #include <lzma.h>
 
-#define IN_BUF_MAX  8192
-#define OUT_BUF_MAX 8192
 
-lzma_ret_status lzma_decompress_stream(ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
+void lzma_ds_config_init(lzma_decompress_config *config) {
+    config->input_buffer_size = 8192;
+    config->output_buffer_size = 8192;
+}
+
+lzma_ret_status lzma_decompress_stream(lzma_decompress_config config, ISeqInStream *inStream, ISeqOutStream *outStream, ICompressProgress *progress) {
     
     // 1. Initialize the lzma_stream structure
     lzma_stream strm = LZMA_STREAM_INIT;
@@ -32,22 +35,22 @@ lzma_ret_status lzma_decompress_stream(ISeqInStream *inStream, ISeqOutStream *ou
         return conv2ret_status(ret);
     }
 
-    uint8_t in_buf[IN_BUF_MAX];
-    uint8_t out_buf[OUT_BUF_MAX];
+    uint8_t in_buf[config.input_buffer_size];
+    uint8_t out_buf[config.output_buffer_size];
 
     lzma_action action = LZMA_RUN;
 
     strm.next_in = NULL;
     strm.avail_in = 0;
     strm.next_out = out_buf;
-    strm.avail_out = OUT_BUF_MAX;
+    strm.avail_out = config.output_buffer_size;
 
     bool isEof = false;
     
     while (true) {
         // Refill input buffer if empty and not at EOF
         
-        size_t inSize = IN_BUF_MAX;
+        size_t inSize = config.input_buffer_size;
         
         lzma_io_status io_status = STATUS_IO_OK;
         if (strm.avail_in == 0 && isEof == false) {
@@ -58,7 +61,7 @@ lzma_ret_status lzma_decompress_stream(ISeqInStream *inStream, ISeqOutStream *ou
                 break;
             }
             
-            if (inSize < IN_BUF_MAX) {
+            if (inSize < config.input_buffer_size) {
                 isEof = true;
                 action = LZMA_FINISH;
             }
@@ -66,15 +69,14 @@ lzma_ret_status lzma_decompress_stream(ISeqInStream *inStream, ISeqOutStream *ou
             strm.next_in = in_buf;
             strm.avail_in = inSize;
         }
-        
        
         // Run the decompressor
         ret = lzma_code(&strm, action);
 
         // Process produced output, if any
-        if (strm.avail_out < sizeof(out_buf)) {
-            size_t write_size = sizeof(out_buf) - strm.avail_out;
-            size_t outSize = ISeqOutStream_Write(outStream, (void *)out_buf, write_size, &io_status );
+        if (strm.avail_out < config.output_buffer_size) {
+            size_t write_size = config.output_buffer_size - strm.avail_out;
+            size_t outSize = ISeqOutStream_Write(outStream, (void *)out_buf, write_size, &io_status);
             
             if (io_status != STATUS_IO_OK) {
                 status = STATUS_WRITE_ERROR;

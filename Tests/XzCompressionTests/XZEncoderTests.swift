@@ -60,6 +60,21 @@ struct XZEncoderTests {
     }
 
     @Test("XZEncoder Compress Data to file")
+    func decodeLargeData() throws {
+        let encoder = XZEncoder()
+        let decoder = XZDecoder()
+
+        let data = TestData.generate(1024 * 1024 * 10)
+        #expect(data.count >= 1024 * 1024 * 10)
+
+        let compressed = try encoder.encode(from: data)
+
+        #expect(compressed.isEmpty == false)
+
+        #expect(try decoder.decode(from: compressed) == data)
+    }
+
+    @Test("XZEncoder Compress Data to file")
     func decodeToFile() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
@@ -73,6 +88,7 @@ struct XZEncoderTests {
         }
 
         let encoder = XZEncoder()
+        let decoder = XZDecoder()
 
         let data = TestData.generate(1024 * 1024 * 10)
 
@@ -82,7 +98,7 @@ struct XZEncoderTests {
 
         let result = try Data(contentsOf: fileURL)
 
-        let decoder = XZDecoder()
+        #expect(result.isEmpty == false)
 
         #expect(try decoder.decode(from: result) == data)
     }

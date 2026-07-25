@@ -12,7 +12,7 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from fileHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(LzmaError) -> Data
+                cancel: @escaping () -> Bool = { false }) throws -> Data
     {
         var result = Data()
         try encode(configuration: configuration,
@@ -55,9 +55,8 @@ public extension LzmaEncoder {
                 from fileHandle: FileHandle,
                 write writeFunc: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(
-        LzmaError
-    ) {
+                cancel: @escaping () -> Bool = { false }) throws
+    {
         try encode(configuration: configuration,
                    read: { try fileHandle.read(upToCount: $0) },
                    write: writeFunc,
@@ -93,7 +92,7 @@ public extension LzmaEncoder {
                 read: @escaping (Int) throws -> Data?,
                 writeToFile writeHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
+                cancel: @escaping () -> Bool = { false }) throws
     {
         try encode(configuration: configuration,
                    read: read,
@@ -144,7 +143,7 @@ public extension LzmaEncoder {
                 from data: Data,
                 writeToFile writeHandle: FileHandle,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
+                cancel: @escaping () -> Bool = { false }) throws
     {
         var configuration = configuration
         configuration.inputBufferSize = min(

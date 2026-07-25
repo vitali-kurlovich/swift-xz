@@ -27,7 +27,7 @@ public extension LzmaDecoder {
                 read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
+                cancel: @escaping () -> Bool = { false }) throws
     {
         let readHandler = ReadHandler(read: read)
         let writeHandler = WriteHandler(write: write)

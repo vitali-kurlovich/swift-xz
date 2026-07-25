@@ -10,7 +10,7 @@ public extension LzmaEncoder {
                 from data: Data,
                 write: @escaping (Data) throws -> Void,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(LzmaError)
+                cancel: @escaping () -> Bool = { false }) throws
     {
         var configuration = configuration
         configuration.inputBufferSize = min(
@@ -46,7 +46,7 @@ public extension LzmaEncoder {
     func encode(configuration: Configuration = .init(),
                 from data: Data,
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws(LzmaError) -> Data
+                cancel: @escaping () -> Bool = { false }) throws -> Data
     {
         var configuration = configuration
         configuration.inputBufferSize = min(

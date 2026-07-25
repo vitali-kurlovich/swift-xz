@@ -9,22 +9,28 @@ import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileHandle: FileHandle,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) -> Data
+    {
         var result = Data()
-        try encode(from: fileHandle, write: { data in
+        try encode(configuration: configuration, from: fileHandle, write: { data in
             result.append(data)
         }, progress: progress)
 
         return result
     }
 
-    func encode(from fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileUrl: URL,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws -> Data
+    {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         let data: Data
 
         do {
-            data = try encode(from: readHandler, progress: progress)
+            data = try encode(configuration: configuration, from: readHandler, progress: progress)
         } catch {
             try readHandler.close()
             throw error
@@ -38,18 +44,26 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileHandle: FileHandle,
+                write writeFunc: @escaping (Data) throws -> Void,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(
         XZError
     ) {
-        try encode(read: { length in
-            try fileHandle.read(upToCount: length)
-        }, write: writeFunc, progress: progress)
+        try encode(configuration: configuration,
+                   read: { length in
+                       try fileHandle.read(upToCount: length)
+                   }, write: writeFunc, progress: progress)
     }
 
-    func encode(from fileUrl: URL, write writeFunc: @escaping (Data) throws -> Void, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileUrl: URL,
+                write writeFunc: @escaping (Data) throws -> Void,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
         do {
-            try encode(from: readHandler, write: writeFunc, progress: progress)
+            try encode(configuration: configuration, from: readHandler, write: writeFunc, progress: progress)
         } catch {
             try readHandler.close()
             throw error
@@ -61,13 +75,23 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) {
-        try encode(read: read, write: { data in
-            try writeHandle.write(contentsOf: data)
-        }, progress: progress)
+    func encode(configuration: EncoderConfiguration = .init(),
+                read: @escaping (Int) throws -> Data?,
+                writeToFile writeHandle: FileHandle,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+    {
+        try encode(configuration: configuration,
+                   read: read,
+                   write: { data in
+                       try writeHandle.write(contentsOf: data)
+                   }, progress: progress)
     }
 
-    func encode(read: @escaping (Int) throws -> Data?, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
+    func encode(configuration: EncoderConfiguration = .init(),
+                read: @escaping (Int) throws -> Data?,
+                writeToUrl fileUrl: URL,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -83,11 +107,10 @@ public extension XZEncoder {
         let writeHandler = try FileHandle(forWritingTo: fileUrl)
 
         do {
-            try encode(
-                read: read,
-                writeToFile: writeHandler,
-                progress: progress
-            )
+            try encode(configuration: configuration,
+                       read: read,
+                       writeToFile: writeHandler,
+                       progress: progress)
 
         } catch {
             try writeHandler.close()
@@ -100,13 +123,33 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from data: Data, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError) {
-        try encode(from: data, write: { data in
+    func encode(configuration: EncoderConfiguration = .init(),
+                from data: Data,
+                writeToFile writeHandle: FileHandle,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws(XZError)
+    {
+        var configuration = configuration
+        configuration.inputBufferSize = min(
+            configuration.inputBufferSize,
+            data.count
+        )
+
+        try encode(configuration: configuration, from: data, write: { data in
             try writeHandle.write(contentsOf: data)
         }, progress: progress)
     }
 
-    func encode(from data: Data, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from data: Data,
+                writeToUrl fileUrl: URL,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
+        var configuration = configuration
+        configuration.inputBufferSize = min(
+            configuration.inputBufferSize,
+            data.count
+        )
+
         let path: String
 
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
@@ -122,6 +165,7 @@ public extension XZEncoder {
         let writeHandler = try FileHandle(forWritingTo: fileUrl)
         do {
             try encode(
+                configuration: configuration,
                 from: data,
                 writeToFile: writeHandler,
                 progress: progress
@@ -137,30 +181,44 @@ public extension XZEncoder {
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
-        try encode(from: fileHandle, write: { data in
-            try writeHandle.write(contentsOf: data)
-        }, progress: progress)
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileHandle: FileHandle,
+                writeToFile writeHandle: FileHandle,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
+        try encode(configuration: configuration,
+                   from: fileHandle,
+                   write: { data in
+                       try writeHandle.write(contentsOf: data)
+                   }, progress: progress)
     }
 
-    func encode(from fileHandle: FileHandle, writeToUrl fileUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
-        try encode(read: { length in
-            try fileHandle.read(upToCount: length)
-        }, writeToUrl: fileUrl, progress: progress)
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileHandle: FileHandle,
+                writeToUrl fileUrl: URL,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
+        try encode(configuration: configuration,
+                   read: { length in
+                       try fileHandle.read(upToCount: length)
+                   }, writeToUrl: fileUrl, progress: progress)
     }
 }
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension XZEncoder {
-    func encode(from fileUrl: URL, writeToFile writeHandle: FileHandle, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileUrl: URL,
+                writeToFile writeHandle: FileHandle,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {
-            try encode(
-                from: readHandler,
-                writeToFile: writeHandle,
-                progress: progress
-            )
+            try encode(configuration: configuration,
+                       from: readHandler,
+                       writeToFile: writeHandle,
+                       progress: progress)
 
         } catch {
             try readHandler.close()
@@ -170,15 +228,18 @@ public extension XZEncoder {
         try readHandler.close()
     }
 
-    func encode(from fileUrl: URL, writeToUrl fileWriteUrl: URL, progress: @escaping (Int, Int) -> Void = { _, _ in }) throws {
+    func encode(configuration: EncoderConfiguration = .init(),
+                from fileUrl: URL,
+                writeToUrl fileWriteUrl: URL,
+                progress: @escaping (Int, Int) -> Void = { _, _ in }) throws
+    {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
 
         do {
-            try encode(
-                from: readHandler,
-                writeToUrl: fileWriteUrl,
-                progress: progress
-            )
+            try encode(configuration: configuration,
+                       from: readHandler,
+                       writeToUrl: fileWriteUrl,
+                       progress: progress)
 
         } catch {
             try readHandler.close()

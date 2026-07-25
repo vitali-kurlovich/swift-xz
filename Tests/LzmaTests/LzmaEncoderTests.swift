@@ -3,8 +3,8 @@
 //
 
 import Foundation
+import Lzma
 import Testing
-import XzCompression
 
 struct LzmaEncoderTests { func encode() throws {
     let encoder = LzmaEncoder()

@@ -1,6 +1,6 @@
 import Foundation
+import Lzma
 import Testing
-import XzCompression
 
 enum IOError: Error {
     case readError

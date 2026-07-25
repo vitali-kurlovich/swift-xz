@@ -7,8 +7,8 @@ let package = Package(
     name: "swift-xz",
     products: [
         .library(
-            name: "XzCompression",
-            targets: ["XzCompression"]
+            name: "Lzma",
+            targets: ["Lzma"]
         ),
     ],
     targets: [
@@ -25,14 +25,14 @@ let package = Package(
                     .target(name: "liblzma"),
                 ]),
         .target(
-            name: "XzCompression",
+            name: "Lzma",
             dependencies: [
                 .target(name: "clzma"),
             ]
         ),
         .testTarget(
-            name: "XzCompressionTests",
-            dependencies: ["XzCompression"]
+            name: "LzmaTests",
+            dependencies: ["Lzma"]
         ),
     ],
 

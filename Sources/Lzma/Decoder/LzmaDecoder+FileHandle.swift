@@ -4,7 +4,6 @@
 
 import struct Foundation.Data
 import class Foundation.FileHandle
-import class Foundation.FileManager
 import struct Foundation.URL
 
 @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)

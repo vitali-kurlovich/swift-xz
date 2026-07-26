@@ -50,9 +50,9 @@ struct LzmaDecoderTests {
 
     @Test
     func `Cancel handling`() throws {
-        let decoder = LzmaDecoder()
+        let decoder = LzmaDecoder(cancel: { true })
         #expect(throws: LzmaError.canceled) {
-            try decoder.decode(from: TestData.compressed, cancel: { true })
+            try decoder.decode(from: TestData.compressed)
         }
     }
 
@@ -63,16 +63,15 @@ struct LzmaDecoderTests {
             outputBufferSize: 512,
         )
 
-        let decoder = LzmaDecoder(configuration: configuration)
+        var progress: [[Int]] = []
+
+        let decoder = LzmaDecoder(configuration: configuration, progress: { inSize, outSize in
+            progress.append([inSize, outSize])
+        })
 
         let data = TestData.compressed
 
-        var progress: [[Int]] = []
-
-        _ = try decoder.decode(from: data,
-                               progress: { inSize, outSize in
-                                   progress.append([inSize, outSize])
-                               })
+        _ = try decoder.decode(from: data)
         #if canImport(Compression)
             #expect(progress == [[512, 512], [768, 1024], [768, 1368]])
         #else

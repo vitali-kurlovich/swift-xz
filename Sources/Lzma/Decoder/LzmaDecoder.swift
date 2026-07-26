@@ -2,7 +2,6 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import Foundation
 import struct Foundation.Data
 
 #if canImport(Compression)
@@ -12,10 +11,19 @@ import struct Foundation.Data
 
 #endif
 
-public struct LzmaDecoder: Sendable {
+public struct LzmaDecoder {
     public var configuration: Configuration
-    public init(configuration: Configuration = .init()) {
+
+    let progress: (Int, Int) -> Void
+    let cancel: () -> Bool
+
+    public init(configuration: Configuration = .init(),
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false })
+    {
         self.configuration = configuration
+        self.progress = progress
+        self.cancel = cancel
     }
 }
 
@@ -34,9 +42,7 @@ public extension LzmaDecoder {
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
     func decode(read: @escaping (Int) throws -> Data?,
-                write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws
+                write: @escaping (Data) throws -> Void) throws
     {
         #if canImport(Compression)
             var inSize = 0

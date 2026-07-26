@@ -10,10 +10,19 @@ import struct Foundation.Data
     import clzma
 #endif
 
-public struct LzmaEncoder: Sendable {
+public struct LzmaEncoder {
     public var configuration: Configuration
-    public init(configuration: Configuration = .init()) {
+
+    let progress: (Int, Int) -> Void
+    let cancel: () -> Bool
+
+    public init(configuration: Configuration = .init(),
+                progress: @escaping (Int, Int) -> Void = { _, _ in },
+                cancel: @escaping () -> Bool = { false })
+    {
         self.configuration = configuration
+        self.progress = progress
+        self.cancel = cancel
     }
 }
 
@@ -34,9 +43,7 @@ public extension LzmaEncoder {
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaEncoder {
     func encode(read: @escaping (Int) throws -> Data?,
-                write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws
+                write: @escaping (Data) throws -> Void) throws
     {
         #if canImport(Compression)
             var inSize = 0

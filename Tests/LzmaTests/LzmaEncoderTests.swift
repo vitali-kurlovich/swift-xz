@@ -58,9 +58,9 @@ func `Encode with multiple reads`() throws {
 
 @Test
 func `Cancel handling`() throws {
-    let encoder = LzmaEncoder()
+    let encoder = LzmaEncoder(cancel: { true })
     #expect(throws: LzmaError.canceled) {
-        try encoder.encode(from: TestData.compressed, cancel: { true })
+        try encoder.encode(from: TestData.compressed)
     }
 }
 
@@ -71,16 +71,15 @@ func Progress() throws {
         outputBufferSize: 512,
     )
 
-    let encoder = LzmaEncoder(configuration: configuration)
+    var progress: [[Int]] = []
+
+    let encoder = LzmaEncoder(configuration: configuration, progress: { inSize, outSize in
+        progress.append([inSize, outSize])
+    })
 
     let data = TestData.expected
 
-    var progress: [[Int]] = []
-
-    _ = try encoder.encode(from: data,
-                           progress: { inSize, outSize in
-                               progress.append([inSize, outSize])
-                           })
+    _ = try encoder.encode(from: data)
 
     print(progress)
     #if canImport(Compression)

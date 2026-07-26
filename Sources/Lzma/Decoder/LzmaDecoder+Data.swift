@@ -7,9 +7,7 @@ import struct Foundation.Data
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
     func decode(from data: Data,
-                write: @escaping (Data) throws -> Void,
-                progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws
+                write: @escaping (Data) throws -> Void) throws
     {
         var position = data.startIndex
         let size = data.count
@@ -27,35 +25,21 @@ public extension LzmaDecoder {
                        return data[range]
 
                    },
-                   write: write,
-                   progress: progress,
-                   cancel: cancel)
+                   write: write)
     }
 }
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
-    func decode(from data: Data,
-                progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws -> Data
-    {
+    func decode(from data: Data) throws -> Data {
         var result = Data()
-        try decode(from: data,
-                   write: { result.append($0) },
-                   progress: progress,
-                   cancel: cancel)
+        try decode(from: data, write: { result.append($0) })
         return result
     }
 
-    func decode(read: @escaping (Int) throws -> Data?,
-                progress: @escaping (Int, Int) -> Void = { _, _ in },
-                cancel: @escaping () -> Bool = { false }) throws -> Data
-    {
+    func decode(read: @escaping (Int) throws -> Data?) throws -> Data {
         var result = Data()
-        try decode(read: read,
-                   write: { result.append($0) },
-                   progress: progress,
-                   cancel: cancel)
+        try decode(read: read, write: { result.append($0) })
         return result
     }
 }

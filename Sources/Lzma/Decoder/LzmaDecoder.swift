@@ -11,19 +11,24 @@ import struct Foundation.Data
 
 #endif
 
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public struct LzmaDecoder {
-    public var configuration: Configuration
-
-    let progress: (Int, Int) -> Void
-    let cancel: () -> Bool
+    var _decoder: _LzmaDecoder
 
     public init(configuration: Configuration = .init(),
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false })
     {
-        self.configuration = configuration
-        self.progress = progress
-        self.cancel = cancel
+        _decoder = _LzmaDecoder(configuration: configuration, progress: progress, cancel: cancel)
+    }
+
+    public var configuration: Configuration {
+        get {
+            _decoder.configuration
+        }
+        set {
+            _decoder.configuration = newValue
+        }
     }
 }
 
@@ -39,11 +44,21 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaDecoder {
     func decode(read: @escaping (Int) throws -> Data?,
                 write: @escaping (Data) throws -> Void) throws
     {
+        try _decoder.transform(read: read, write: write)
+    }
+}
+
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+struct _LzmaDecoder: DataStreamTransformer {
+    var configuration: LzmaDecoder.Configuration
+    let progress: (Int, Int) -> Void
+    let cancel: () -> Bool
+
+    func transform(read: @escaping (Int) throws -> Data?, write: @escaping (Data) throws -> Void) throws {
         #if canImport(Compression)
             var inSize = 0
             var outSize = 0

@@ -7,36 +7,17 @@ import struct Foundation.Data
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaEncoder {
     func encode(from data: Data, write: @escaping (Data) throws -> Void) throws {
-        var position = data.startIndex
-        let size = data.count
-
-        try encode(read: { length in
-                       let rangeLength = Swift.min(length, size - position)
-
-                       if rangeLength == 0 {
-                           return nil
-                       }
-
-                       let range = position ..< position + rangeLength
-                       position += rangeLength
-
-                       return data[range]
-                   },
-                   write: write)
+        try _encoder.transform(from: data, write: write)
     }
 }
 
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public extension LzmaEncoder {
     func encode(from data: Data) throws -> Data {
-        var result = Data()
-        try encode(from: data, write: { result.append($0) })
-        return result
+        try _encoder.transform(from: data)
     }
 
     func encode(read: @escaping (Int) throws -> Data?) throws -> Data {
-        var result = Data()
-        try encode(read: read, write: { result.append($0) })
-        return result
+        try _encoder.transform(read: read)
     }
 }

@@ -92,24 +92,24 @@ public extension LzmaEncoder {
             var readStream = ISeqInStream(
                 Read: readHandler.readStream,
                 Finalize: readHandler.finalize,
-                context: readHandler.context
+                context: readHandler.context,
             )
             var writeStream = ISeqOutStream(
                 Write: writeHandler.writeStream,
                 Finalize: writeHandler.finalize,
-                context: writeHandler.context
+                context: writeHandler.context,
             )
 
             var streamProgress = IStreamProgress(
                 Progress: progressHandler.progress,
                 Finalize: progressHandler.finalize,
-                context: progressHandler.context
+                context: progressHandler.context,
             )
 
             var caceletion = IStreamCancelation(
                 Cancelation: cancelHandler.cancelation,
                 Finalize: cancelHandler.finalize,
-                context: cancelHandler.context
+                context: cancelHandler.context,
             )
 
             let buffer_config = lzma_buffer_config(input_buffer_size: configuration.inputBufferSize, output_buffer_size: configuration.outputBufferSize)

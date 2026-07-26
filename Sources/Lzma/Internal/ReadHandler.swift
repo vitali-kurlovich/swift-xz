@@ -9,7 +9,7 @@ typealias CReadStream = @convention(c) (
     UnsafePointer<ISeqInStream_>?,
     UnsafeMutableRawPointer?,
     UnsafeMutablePointer<Int>?,
-    UnsafeMutablePointer<lzma_io_status>?
+    UnsafeMutablePointer<lzma_io_status>?,
 ) -> Void
 
 typealias FinalizeReadStream = @convention(c) (UnsafePointer<ISeqInStream_>?) -> Void
@@ -32,7 +32,7 @@ extension ReadHandler {
     }
 
     var finalize: FinalizeReadStream {
-        return { ptr in
+        { ptr in
             guard let ptr else {
                 return
             }
@@ -45,7 +45,7 @@ extension ReadHandler {
 
     @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     var readStream: CReadStream {
-        return { ptr, buff, size, status in
+        { ptr, buff, size, status in
             guard let ptr, let size, let buff, let status else {
                 status?.pointee = STATUS_IO_READ_ERROR
                 return

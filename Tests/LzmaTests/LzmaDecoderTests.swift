@@ -8,15 +8,15 @@ enum IOError: Error {
 }
 
 struct LzmaDecoderTests {
-    @Test("Decode small data")
-    func decode() throws {
+    @Test
+    func `Decode small data`() throws {
         let decoder = LzmaDecoder()
 
         #expect(try decoder.decode(from: TestData.compressed) == TestData.expected)
     }
 
-    @Test("Decode with multiple reads")
-    func decodeMultipleReads() throws {
+    @Test
+    func `Decode with multiple reads`() throws {
         let configuration = LzmaDecoder.Configuration(inputBufferSize: 512)
         let decoder = LzmaDecoder(configuration: configuration)
 
@@ -40,7 +40,7 @@ struct LzmaDecoderTests {
                 position += rangeLength
 
                 return data[range]
-            }
+            },
         )
 
         #expect(readCount == 2)
@@ -48,19 +48,19 @@ struct LzmaDecoderTests {
         #expect(result == TestData.expected)
     }
 
-    @Test("Cancel handling")
-    func cancel() throws {
+    @Test
+    func `Cancel handling`() throws {
         let decoder = LzmaDecoder()
         #expect(throws: LzmaError.canceled) {
             try decoder.decode(from: TestData.compressed, cancel: { true })
         }
     }
 
-    @Test("Progress")
-    func progress() throws {
+    @Test
+    func Progress() throws {
         let configuration = LzmaDecoder.Configuration(
             inputBufferSize: 512,
-            outputBufferSize: 512
+            outputBufferSize: 512,
         )
 
         let decoder = LzmaDecoder(configuration: configuration)
@@ -80,8 +80,8 @@ struct LzmaDecoderTests {
         #endif
     }
 
-    @Test("Error handling")
-    func error() throws {
+    @Test
+    func `Error handling`() throws {
         let decoder = LzmaDecoder()
 
         #if canImport(Compression)
@@ -105,8 +105,8 @@ struct LzmaDecoderTests {
         }
     }
 
-    @Test("Decode to file")
-    func fileDecode() throws {
+    @Test
+    func `Decode to file`() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
 
@@ -134,8 +134,8 @@ struct LzmaDecoderTests {
         #expect(try decoder.decode(from: fileURL) == TestData.expected)
     }
 
-    @Test("Decode data to file")
-    func decodeToFile() throws {
+    @Test
+    func `Decode data to file`() throws {
         // 1. Get the system temporary directory URL
         let tempDir = FileManager.default.temporaryDirectory
 

@@ -96,12 +96,10 @@ public extension LzmaDecoder {
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws
     {
-        let path: String
-
-        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-            path = fileUrl.path()
+        let path: String = if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            fileUrl.path()
         } else {
-            path = fileUrl.path
+            fileUrl.path
         }
 
         if FileManager.default.fileExists(atPath: path) == false {
@@ -144,12 +142,10 @@ public extension LzmaDecoder {
                 progress: @escaping (Int, Int) -> Void = { _, _ in },
                 cancel: @escaping () -> Bool = { false }) throws
     {
-        let path: String
-
-        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-            path = fileUrl.path()
+        let path: String = if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            fileUrl.path()
         } else {
-            path = fileUrl.path
+            fileUrl.path
         }
 
         if FileManager.default.fileExists(atPath: path) == false {

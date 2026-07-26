@@ -7,7 +7,7 @@ import clzma
 typealias CStreamProgress = @convention(c) (
     UnsafePointer<IStreamProgress_>?,
     UInt64,
-    UInt64
+    UInt64,
 ) -> Void
 
 typealias FinalizeCompressProgress = @convention(c) (UnsafePointer<IStreamProgress>?) -> Void
@@ -31,7 +31,7 @@ extension StreamProgressHandler {
     }
 
     var finalize: FinalizeCompressProgress {
-        return { ptr in
+        { ptr in
             guard let ptr else {
                 return
             }
@@ -43,7 +43,7 @@ extension StreamProgressHandler {
     }
 
     var progress: CStreamProgress {
-        return { ptr, inSize, outSize in
+        { ptr, inSize, outSize in
             guard let ptr else {
                 return
             }

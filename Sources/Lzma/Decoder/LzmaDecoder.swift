@@ -2,12 +2,14 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
+import Foundation
 import struct Foundation.Data
 
 #if canImport(Compression)
     import Compression
 #else
     import clzma
+
 #endif
 
 public struct LzmaDecoder: Sendable {
@@ -90,29 +92,29 @@ public extension LzmaDecoder {
             var readStream = ISeqInStream(
                 Read: readHandler.readStream,
                 Finalize: readHandler.finalize,
-                context: readHandler.context
+                context: readHandler.context,
             )
             var writeStream = ISeqOutStream(
                 Write: writeHandler.writeStream,
                 Finalize: writeHandler.finalize,
-                context: writeHandler.context
+                context: writeHandler.context,
             )
 
             var streamProgress = IStreamProgress(
                 Progress: progressHandler.progress,
                 Finalize: progressHandler.finalize,
-                context: progressHandler.context
+                context: progressHandler.context,
             )
 
             var caceletion = IStreamCancelation(
                 Cancelation: cancelHandler.cancelation,
                 Finalize: cancelHandler.finalize,
-                context: cancelHandler.context
+                context: cancelHandler.context,
             )
 
             let config = lzma_decompress_config(
                 input_buffer_size: .init(configuration.inputBufferSize),
-                output_buffer_size: .init(configuration.outputBufferSize)
+                output_buffer_size: .init(configuration.outputBufferSize),
             )
 
             let status = lzma_decompress_stream(config, &readStream, &writeStream, &streamProgress, &caceletion)

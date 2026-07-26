@@ -19,8 +19,8 @@ struct LzmaEncoderTests { func encode() throws {
     #expect(try decoder.decode(from: result) == data)
 }
 
-@Test("Encode with multiple reads")
-func encodeMultipleReads() throws {
+@Test
+func `Encode with multiple reads`() throws {
     let configuration = LzmaEncoder.Configuration(inputBufferSize: 512)
     let encoder = LzmaEncoder(configuration: configuration)
     let data = TestData.expected
@@ -43,7 +43,7 @@ func encodeMultipleReads() throws {
             position += rangeLength
 
             return data[range]
-        }
+        },
     )
     #if canImport(Compression)
         #expect(readCount == 4)
@@ -56,19 +56,19 @@ func encodeMultipleReads() throws {
     #expect(try decoder.decode(from: result) == TestData.expected)
 }
 
-@Test("Cancel handling")
-func cancel() throws {
+@Test
+func `Cancel handling`() throws {
     let encoder = LzmaEncoder()
     #expect(throws: LzmaError.canceled) {
         try encoder.encode(from: TestData.compressed, cancel: { true })
     }
 }
 
-@Test("Progress")
-func progress() throws {
+@Test
+func Progress() throws {
     let configuration = LzmaEncoder.Configuration(
         inputBufferSize: 512,
-        outputBufferSize: 512
+        outputBufferSize: 512,
     )
 
     let encoder = LzmaEncoder(configuration: configuration)
@@ -90,8 +90,8 @@ func progress() throws {
     #endif
 }
 
-@Test("Error handling")
-func error() throws {
+@Test
+func `Error handling`() throws {
     let encoder = LzmaEncoder()
 
     #expect(throws: LzmaError.writeError) {
@@ -101,8 +101,8 @@ func error() throws {
     }
 }
 
-@Test("Encode to file")
-func fileEncode() throws {
+@Test
+func `Encode to file`() throws {
     // 1. Get the system temporary directory URL
     let tempDir = FileManager.default.temporaryDirectory
 
@@ -128,8 +128,8 @@ func fileEncode() throws {
     #expect(try decoder.decode(from: compessedURL) == TestData.expected)
 }
 
-@Test("Encode large dataset")
-func decodeLargeData() throws {
+@Test
+func `Encode large dataset`() throws {
     let encoder = LzmaEncoder()
     let decoder = LzmaDecoder()
 
@@ -143,8 +143,8 @@ func decodeLargeData() throws {
     #expect(try decoder.decode(from: compressed) == data)
 }
 
-@Test("Encode large data to file")
-func decodeToFile() throws {
+@Test
+func `Encode large data to file`() throws {
     // 1. Get the system temporary directory URL
     let tempDir = FileManager.default.temporaryDirectory
 

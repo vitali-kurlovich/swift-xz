@@ -28,7 +28,7 @@ extension WriteHandler {
     }
 
     var finalize: FinalizeWriteStream {
-        return { ptr in
+        { ptr in
             guard let ptr else {
                 return
             }
@@ -41,7 +41,7 @@ extension WriteHandler {
 
     @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     var writeStream: CWriteStream {
-        return { ptr, buff, size, status in
+        { ptr, buff, size, status in
             guard let ptr, let buff, let status else {
                 status?.pointee = STATUS_IO_WRITE_ERROR
                 return 0

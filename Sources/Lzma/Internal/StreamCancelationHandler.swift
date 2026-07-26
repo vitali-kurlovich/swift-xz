@@ -6,7 +6,7 @@ import clzma
 
 typealias CStreamCancelation = @convention(c) (
     UnsafePointer<IStreamCancelation_>?,
-    UnsafeMutablePointer<Bool>?
+    UnsafeMutablePointer<Bool>?,
 ) -> Void
 typealias FinalizeCancelation = @convention(c) (UnsafePointer<IStreamCancelation_>?) -> Void
 
@@ -28,7 +28,7 @@ extension StreamCancelationHandler {
     }
 
     var finalize: FinalizeCancelation {
-        return { ptr in
+        { ptr in
             guard let ptr else {
                 return
             }
@@ -40,7 +40,7 @@ extension StreamCancelationHandler {
     }
 
     var cancelation: CStreamCancelation {
-        return { ptr, cancel in
+        { ptr, cancel in
             guard let ptr, let cancel else {
                 return
             }

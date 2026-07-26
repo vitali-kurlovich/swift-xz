@@ -8,7 +8,7 @@ let package = Package(
     products: [
         .library(
             name: "Lzma",
-            targets: ["Lzma"]
+            targets: ["Lzma"],
         ),
     ],
     targets: [
@@ -18,7 +18,7 @@ let package = Package(
             providers: [
                 .brew(["xz"]),
                 .apt(["liblzma-dev"]),
-            ]
+            ],
         ),
         .target(name: "clzma",
                 dependencies: [
@@ -28,13 +28,13 @@ let package = Package(
             name: "Lzma",
             dependencies: [
                 .target(name: "clzma"),
-            ]
+            ],
         ),
         .testTarget(
             name: "LzmaTests",
-            dependencies: ["Lzma"]
+            dependencies: ["Lzma"],
         ),
     ],
 
-    swiftLanguageModes: [.v6]
+    swiftLanguageModes: [.v6],
 )

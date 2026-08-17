@@ -10,6 +10,7 @@ import struct Foundation.Data
     import clzma
 #endif
 
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 public struct LzmaEncoder {
     var _encoder: _LzmaEncoder
 

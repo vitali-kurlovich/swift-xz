@@ -3,20 +3,26 @@
 
 import PackageDescription
 
-var targets: [Target] = []
+let targets: [Target]
 
 #if os(anyAppleOS)
-    targets.append(
+
+    targets = [
         .target(
             name: "Lzma",
             dependencies: [
             ],
         ),
-    )
+
+        .testTarget(
+            name: "LzmaTests",
+            dependencies: ["Lzma"],
+        ),
+    ]
 
 #elseif os(Linux)
 
-    targets.append(
+    targets = [
         .systemLibrary(
             name: "liblzma",
             pkgConfig: "liblzma",
@@ -36,15 +42,13 @@ var targets: [Target] = []
                 .target(name: "clzma"),
             ],
         ),
-    )
-#endif
 
-targets.append(
-    .testTarget(
-        name: "LzmaTests",
-        dependencies: ["Lzma"],
-    ),
-)
+        .testTarget(
+            name: "LzmaTests",
+            dependencies: ["Lzma"],
+        ),
+    ]
+#endif
 
 let package = Package(
     name: "swift-xz",

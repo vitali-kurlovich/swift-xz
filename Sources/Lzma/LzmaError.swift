@@ -2,7 +2,9 @@
 //  Created by Kurlovich Vitali on 7/23/26.
 //
 
-import clzma
+#if os(Linux)
+    import clzma
+#endif
 
 public enum LzmaError: Error, Sendable {
     /**
@@ -106,29 +108,31 @@ public enum LzmaError: Error, Sendable {
     case unknownError
 }
 
-extension LzmaError {
-    init(_ status: lzma_ret_status) {
-        switch status {
-        case STATUS_MEM_ERROR:
-            self = .memoryError
-        case STATUS_MEMLIMIT_ERROR:
-            self = .memoryLimitError
-        case STATUS_FORMAT_ERROR:
-            self = .formatError
-        case STATUS_OPTIONS_ERROR:
-            self = .optionsError
-        case STATUS_DATA_ERROR:
-            self = .dataError
-        case STATUS_PROG_ERROR:
-            self = .progError
-        case STATUS_READ_ERROR:
-            self = .readError
-        case STATUS_WRITE_ERROR:
-            self = .writeError
-        case STATUS_CANCELED:
-            self = .canceled
-        default:
-            self = .unknownError
+#if os(Linux)
+    extension LzmaError {
+        init(_ status: lzma_ret_status) {
+            switch status {
+            case STATUS_MEM_ERROR:
+                self = .memoryError
+            case STATUS_MEMLIMIT_ERROR:
+                self = .memoryLimitError
+            case STATUS_FORMAT_ERROR:
+                self = .formatError
+            case STATUS_OPTIONS_ERROR:
+                self = .optionsError
+            case STATUS_DATA_ERROR:
+                self = .dataError
+            case STATUS_PROG_ERROR:
+                self = .progError
+            case STATUS_READ_ERROR:
+                self = .readError
+            case STATUS_WRITE_ERROR:
+                self = .writeError
+            case STATUS_CANCELED:
+                self = .canceled
+            default:
+                self = .unknownError
+            }
         }
     }
-}
+#endif

@@ -4,15 +4,13 @@
 
 import struct Foundation.Data
 
-#if canImport(Compression)
-    import Compression
-#else
+#if os(Linux)
     import clzma
-
+#elseif os(anyAppleOS)
+    import Compression
 #endif
 
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-public struct LzmaDecoder {
+public nonisolated struct LzmaDecoder {
     var _decoder: _LzmaDecoder
 
     public init(configuration: Configuration = .init(),
@@ -52,14 +50,55 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 struct _LzmaDecoder: DataStreamTransformer {
     var configuration: LzmaDecoder.Configuration
     let progress: (Int, Int) -> Void
     let cancel: () -> Bool
 
     func transform(read: @escaping (Int) throws -> Data?, write: @escaping (Data) throws -> Void) throws {
-        #if canImport(Compression)
+        #if os(Linux)
+
+            let readHandler = ReadHandler(read: read)
+            let writeHandler = WriteHandler(write: write)
+
+            let progressHandler = StreamProgressHandler(progressFunc: progress)
+            let cancelHandler = StreamCancelationHandler(cancel: cancel)
+
+            var readStream = ISeqInStream(
+                Read: readHandler.readStream,
+                Finalize: readHandler.finalize,
+                context: readHandler.context,
+            )
+            var writeStream = ISeqOutStream(
+                Write: writeHandler.writeStream,
+                Finalize: writeHandler.finalize,
+                context: writeHandler.context,
+            )
+
+            var streamProgress = IStreamProgress(
+                Progress: progressHandler.progress,
+                Finalize: progressHandler.finalize,
+                context: progressHandler.context,
+            )
+
+            var caceletion = IStreamCancelation(
+                Cancelation: cancelHandler.cancelation,
+                Finalize: cancelHandler.finalize,
+                context: cancelHandler.context,
+            )
+
+            let config = lzma_decompress_config(
+                input_buffer_size: .init(configuration.inputBufferSize),
+                output_buffer_size: .init(configuration.outputBufferSize),
+            )
+
+            let status = lzma_decompress_stream(config, &readStream, &writeStream, &streamProgress, &caceletion)
+
+            guard status == STATUS_OK else {
+                throw LzmaError(status)
+            }
+
+        #else
             var inSize = 0
             var outSize = 0
 
@@ -102,47 +141,6 @@ struct _LzmaDecoder: DataStreamTransformer {
                 throw LzmaError.dataError
             }
 
-        #else
-
-            let readHandler = ReadHandler(read: read)
-            let writeHandler = WriteHandler(write: write)
-
-            let progressHandler = StreamProgressHandler(progressFunc: progress)
-            let cancelHandler = StreamCancelationHandler(cancel: cancel)
-
-            var readStream = ISeqInStream(
-                Read: readHandler.readStream,
-                Finalize: readHandler.finalize,
-                context: readHandler.context,
-            )
-            var writeStream = ISeqOutStream(
-                Write: writeHandler.writeStream,
-                Finalize: writeHandler.finalize,
-                context: writeHandler.context,
-            )
-
-            var streamProgress = IStreamProgress(
-                Progress: progressHandler.progress,
-                Finalize: progressHandler.finalize,
-                context: progressHandler.context,
-            )
-
-            var caceletion = IStreamCancelation(
-                Cancelation: cancelHandler.cancelation,
-                Finalize: cancelHandler.finalize,
-                context: cancelHandler.context,
-            )
-
-            let config = lzma_decompress_config(
-                input_buffer_size: .init(configuration.inputBufferSize),
-                output_buffer_size: .init(configuration.outputBufferSize),
-            )
-
-            let status = lzma_decompress_stream(config, &readStream, &writeStream, &streamProgress, &caceletion)
-
-            guard status == STATUS_OK else {
-                throw LzmaError(status)
-            }
         #endif
     }
 }

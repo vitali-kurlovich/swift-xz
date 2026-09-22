@@ -2,50 +2,53 @@
 //  Created by Kurlovich Vitali on 7/25/26.
 //
 
-import clzma
+#if os(Linux)
+    import clzma
 
-typealias CStreamCancelation = @convention(c) (
-    UnsafePointer<IStreamCancelation_>?,
-    UnsafeMutablePointer<Bool>?,
-) -> Void
-typealias FinalizeCancelation = @convention(c) (UnsafePointer<IStreamCancelation_>?) -> Void
+    typealias CStreamCancelation = @convention(c) (
+        UnsafePointer<IStreamCancelation_>?,
+        UnsafeMutablePointer<Bool>?,
+    ) -> Void
+    typealias FinalizeCancelation = @convention(c) (UnsafePointer<IStreamCancelation_>?) -> Void
 
-final class StreamCancelationHandler: @unchecked Sendable {
-    private let cancelFunc: () -> Bool
+    final class StreamCancelationHandler: @unchecked Sendable {
+        private let cancelFunc: () -> Bool
 
-    init(cancel: @escaping () -> Bool) {
-        cancelFunc = cancel
-    }
+        init(cancel: @escaping () -> Bool) {
+            cancelFunc = cancel
+        }
 
-    var isCancelled: Bool {
-        cancelFunc()
-    }
-}
-
-extension StreamCancelationHandler {
-    var context: UnsafeMutableRawPointer {
-        UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
-    }
-
-    var finalize: FinalizeCancelation {
-        { ptr in
-            guard let ptr else {
-                return
-            }
-
-            Unmanaged<StreamCancelationHandler>
-                .fromOpaque(ptr.pointee.context)
-                .release()
+        var isCancelled: Bool {
+            cancelFunc()
         }
     }
 
-    var cancelation: CStreamCancelation {
-        { ptr, cancel in
-            guard let ptr, let cancel else {
-                return
+    extension StreamCancelationHandler {
+        var context: UnsafeMutableRawPointer {
+            UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
+        }
+
+        var finalize: FinalizeCancelation {
+            { ptr in
+                guard let ptr else {
+                    return
+                }
+
+                Unmanaged<StreamCancelationHandler>
+                    .fromOpaque(ptr.pointee.context)
+                    .release()
             }
-            let handler = Unmanaged<StreamCancelationHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
-            cancel.pointee = handler.isCancelled
+        }
+
+        var cancelation: CStreamCancelation {
+            { ptr, cancel in
+                guard let ptr, let cancel else {
+                    return
+                }
+                let handler = Unmanaged<StreamCancelationHandler>.fromOpaque(ptr.pointee.context).takeUnretainedValue()
+                cancel.pointee = handler.isCancelled
+            }
         }
     }
-}
+
+#endif

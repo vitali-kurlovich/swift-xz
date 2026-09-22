@@ -4,7 +4,6 @@
 
 import struct Foundation.Data
 
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 extension DataStreamTransformer {
     func transform(from data: Data,
                    write: @escaping (Data) throws -> Void) throws
@@ -29,7 +28,6 @@ extension DataStreamTransformer {
     }
 }
 
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 extension DataStreamTransformer {
     func transform(from data: Data) throws -> Data {
         var result = Data()

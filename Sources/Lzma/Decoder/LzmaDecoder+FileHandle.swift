@@ -6,7 +6,6 @@ import struct Foundation.Data
 import class Foundation.FileHandle
 import struct Foundation.URL
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaDecoder {
     func decode(from fileHandle: FileHandle) throws -> Data {
         try _decoder.transform(from: fileHandle)
@@ -17,7 +16,6 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaDecoder {
     func decode(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void) throws {
         try _decoder.transform(from: fileHandle, write: writeFunc)
@@ -28,7 +26,6 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaDecoder {
     func decode(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle) throws {
         try _decoder.transform(read: read, writeToFile: writeHandle)
@@ -39,7 +36,6 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaDecoder {
     func decode(from data: Data, writeToFile writeHandle: FileHandle) throws {
         try _decoder.transform(from: data, writeToFile: writeHandle)
@@ -50,7 +46,6 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaDecoder {
     func decode(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle) throws {
         try _decoder.transform(from: fileHandle, writeToFile: writeHandle)
@@ -61,7 +56,6 @@ public extension LzmaDecoder {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 public extension LzmaDecoder {
     func decode(from fileUrl: URL, writeToFile writeHandle: FileHandle) throws {
         try _decoder.transform(from: fileUrl, writeToFile: writeHandle)

@@ -7,7 +7,6 @@ import class Foundation.FileHandle
 import class Foundation.FileManager
 import struct Foundation.URL
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 extension DataStreamTransformer {
     func transform(from fileHandle: FileHandle) throws -> Data {
         var result = Data()
@@ -33,7 +32,6 @@ extension DataStreamTransformer {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 extension DataStreamTransformer {
     func transform(from fileHandle: FileHandle, write writeFunc: @escaping (Data) throws -> Void) throws {
         try transform(read: { try fileHandle.read(upToCount: $0) }, write: writeFunc)
@@ -52,7 +50,6 @@ extension DataStreamTransformer {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 extension DataStreamTransformer {
     func transform(read: @escaping (Int) throws -> Data?, writeToFile writeHandle: FileHandle) throws {
         try transform(read: read, write: { try writeHandle.write(contentsOf: $0) })
@@ -82,7 +79,6 @@ extension DataStreamTransformer {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 extension DataStreamTransformer {
     func transform(from data: Data, writeToFile writeHandle: FileHandle) throws {
         try transform(from: data, write: { try writeHandle.write(contentsOf: $0) })
@@ -111,7 +107,6 @@ extension DataStreamTransformer {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 extension DataStreamTransformer {
     func transform(from fileHandle: FileHandle, writeToFile writeHandle: FileHandle) throws {
         try transform(from: fileHandle, write: { try writeHandle.write(contentsOf: $0) })
@@ -122,7 +117,6 @@ extension DataStreamTransformer {
     }
 }
 
-@available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
 extension DataStreamTransformer {
     func transform(from fileUrl: URL, writeToFile writeHandle: FileHandle) throws {
         let readHandler = try FileHandle(forReadingFrom: fileUrl)
